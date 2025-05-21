@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#1A237E</color> <!-- Dark Navy -->
+    <color name="colorPrimaryDark">#000051</color> <!-- Deep Navy -->
+    <color name="colorSecondary">#03A9F4</color> <!-- Bright Blue -->
+    <color name="colorAccent">#00BCD4</color> <!-- Cyan -->
+    <color name="background">#0A0A0A</color> <!-- Off-black -->
+    <color name="navy_gradient_start">#000080</color>
+    <color name="navy_gradient_end">#000000</color>
+    <color name="text_primary">#FFFFFF</color>
+    <color name="text_secondary">#B3B3B3</color>
+
+    <color name="background_night">#121212</color>
+    <color name="colorPrimaryNight">#303F9F</color>
+</resources>

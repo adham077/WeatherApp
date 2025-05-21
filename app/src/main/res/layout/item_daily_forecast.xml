@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="4dp"
+    app:cardBackgroundColor="#80FFFFFF"
+    android:layout_marginBottom="8dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="12dp"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/daily_date"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Mon, May 21"
+            android:textSize="16sp"
+            android:textColor="@color/text_primary"/>
+
+        <ImageView
+            android:id="@+id/daily_weather_icon"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_launcher_foreground"/>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:orientation="vertical"
+            android:layout_marginStart="8dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/daily_high_temp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="H: 28°C"
+                    android:textSize="14sp"
+                    android:textColor="@color/text_primary"
+                    android:layout_marginEnd="8dp"/>
+
+                <TextView
+                    android:id="@+id/daily_low_temp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="L: 20°C"
+                    android:textSize="14sp"
+                    android:textColor="@color/text_primary"/>
+            </LinearLayout>
+
+            <ProgressBar
+                android:id="@+id/temperature_range_bar"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="8dp"
+                android:layout_marginTop="8dp"
+                android:max="40"
+                android:progress="28"
+                android:secondaryProgress="20"
+                android:progressDrawable="@drawable/temperature_bar_gradient"/>
+        </LinearLayout>
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

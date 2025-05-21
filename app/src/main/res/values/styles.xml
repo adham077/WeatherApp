@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Toolbar theme overlay -->
+    <style name="ThemeOverlay.WeatherApp.Toolbar" parent="">
+        <item name="android:textColorPrimary">@color/text_primary</item>
+        <item name="android:textColorSecondary">@color/text_secondary</item>
+        <item name="toolbarStyle">@style/Widget.WeatherApp.Toolbar</item>
+    </style>
+
+    <!-- Navigation drawer text style -->
+    <style name="NavDrawerText" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textSize">14sp</item>
+        <item name="fontFamily">@font/montserrat_medium</item>
+    </style>
+
+    <!-- Custom Toolbar style -->
+    <style name="Widget.WeatherApp.Toolbar" parent="Widget.Material3.Toolbar">
+        <item name="titleTextColor">@color/text_primary</item>
+        <item name="subtitleTextColor">@color/text_secondary</item>
+    </style>
+</resources>

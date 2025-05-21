@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="60dp"
+    android:height="60dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <!-- Compass Circle -->
+    <path
+        android:pathData="M12,2a10,10 0 1,0 0,20a10,10 0 0,0 0,-20z"
+        android:fillColor="@color/text_primary"
+        android:strokeColor="@color/text_secondary"
+        android:strokeWidth="1"/>
+
+    <!-- Compass Needle -->
+    <path
+        android:pathData="M12,4v8l3,4l-3,4v-8l-3,-4z"
+        android:fillColor="@color/colorAccent"/>
+
+    <!-- North Indicator -->
+    <path
+        android:pathData="M12,2.5m-1,0a1,1 0 1,0 2,0a1,1 0 1,0 -2,0"
+        android:fillColor="@color/colorSecondary"/>
+</vector>

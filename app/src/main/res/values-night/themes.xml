@@ -1,0 +1,7 @@
+<resources>
+    <style name="Base.Theme.WeatherApp" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Night mode specific overrides -->
+        <item name="android:windowBackground">@color/background_night</item>
+        <item name="colorPrimary">@color/colorPrimaryNight</item>
+    </style>
+</resources>
