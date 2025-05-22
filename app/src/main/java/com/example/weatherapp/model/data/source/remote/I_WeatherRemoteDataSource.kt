@@ -1,4 +1,4 @@
-package com.example.weatherapp.model.data.remote
+package com.example.weatherapp.model.data.source.remote
 
 import com.example.weatherapp.model.pojo.WeatherResponse
 
@@ -11,4 +11,13 @@ interface I_WeatherRemoteDataSource {
         lang: String = "en",
         appId: String
     ): WeatherRemoteDataSource.WeatherResult
+
+    suspend fun getCurrentWeather(
+        lat: Double,
+        lon: Double,
+        units: String = "metric",
+        lang: String = "en",
+        appId: String
+    ): WeatherRemoteDataSource.CurrentWeatherResult
+
 }

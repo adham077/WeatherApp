@@ -1,0 +1,173 @@
+package com.example.weatherapp.model.repository
+
+import android.os.Build
+import androidx.annotation.RequiresApi
+import com.example.weatherapp.key.apiKey
+import com.example.weatherapp.model.data.source.local.I_WeatherLocalDataSource
+import com.example.weatherapp.model.data.source.remote.I_WeatherRemoteDataSource
+import com.example.weatherapp.model.data.source.remote.WeatherRemoteDataSource
+import com.example.weatherapp.model.pojo.CurrentWeather
+import com.example.weatherapp.model.pojo.CurrentWeatherResponse
+import com.example.weatherapp.model.pojo.WeatherResponseEntity
+import com.example.weatherapp.model.pojo.WeatherTimed
+import java.time.LocalDateTime
+
+class WeatherRepository private constructor(private val weatherLocalDataSource: I_WeatherLocalDataSource,private val weatherRemoteDataSource: I_WeatherRemoteDataSource) {
+
+    companion object{
+        private var instance: WeatherRepository? = null
+
+        fun getInstance(weatherLocalDataSource: I_WeatherLocalDataSource,weatherRemoteDataSource: I_WeatherRemoteDataSource): WeatherRepository {
+            return instance ?: synchronized(this) {
+                val newInstance = WeatherRepository(weatherLocalDataSource,weatherRemoteDataSource)
+                instance = newInstance
+                newInstance
+            }
+        }
+    }
+
+    enum class Status{
+        SUCCESS,
+        ERROR_LOCAL_FETCH,
+        ERROR_REMOTE_FETCH,
+        ERROR_INVALID_PARAMS,
+        ERROR_INVALID_RESPONSE
+    }
+
+    enum class Source{
+        LOCAL,
+        REMOTE
+    }
+
+    data class Coordinates(
+        var lat: Double,
+        var lon: Double
+    )
+
+    data class WeatherResult(
+        var weatherTimed : WeatherTimed?,
+        var status: Status
+    )
+
+    data class CurrentWeatherResult(
+        var currentWeatherResponse : CurrentWeatherResponse?,
+        var status: Status
+    )
+
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    suspend fun getWeatherData(
+        src : Source,
+        coordinates: Coordinates? = null,
+        cnt: Int = 96,
+        units: String = "metric",
+    ) : WeatherResult{
+        val status : Status
+        var weatherTimed : WeatherTimed? = null
+        val weatherResult:WeatherResult
+        when(src){
+            Source.LOCAL -> {
+                val weatherResponseEntity = weatherLocalDataSource.getAllWeather()?.get(0)
+                weatherTimed = weatherResponseEntity?.response
+
+                status = if(weatherTimed == null){
+                    Status.ERROR_LOCAL_FETCH
+                } else{
+                    Status.SUCCESS
+                }
+                weatherResult = WeatherResult(weatherTimed,status)
+            }
+            Source.REMOTE -> {
+                if(coordinates == null || coordinates.lat == 0.0 || coordinates.lon == 0.0){
+                    status = Status.ERROR_INVALID_PARAMS
+                    weatherResult = WeatherResult(weatherTimed,status)
+                }
+                else{
+                    val _weatherResponse = weatherRemoteDataSource.getWeather(coordinates.lat,coordinates.lon,cnt = cnt,units = units, appId = apiKey)
+                    if(_weatherResponse.weatherResponse == null){
+                        status = Status.ERROR_REMOTE_FETCH
+                        weatherResult = WeatherResult(weatherTimed,status)
+                    }
+                    else if(_weatherResponse.weatherResponse!!.cod != "200"){
+                        status = Status.ERROR_INVALID_RESPONSE
+                        weatherResult = WeatherResult(weatherTimed,status)
+                    }
+                    else if(_weatherResponse.status != WeatherRemoteDataSource.ResponseStatus.SUCCESS){
+                        status = Status.ERROR_REMOTE_FETCH
+                        weatherResult = WeatherResult(weatherTimed,status)
+                    }
+                    else if(_weatherResponse.weatherResponse!!.list.isEmpty()){
+                        status = Status.ERROR_INVALID_RESPONSE
+                        weatherResult = WeatherResult(weatherTimed,status)
+                    }
+                    else{
+                        weatherTimed = WeatherTimed(
+                            _weatherResponse.weatherResponse!!,
+                            LocalDateTime.now()
+                        )
+                        status = Status.SUCCESS
+                        weatherResult = WeatherResult(weatherTimed,status)
+                    }
+                }
+            }
+
+        }
+        return weatherResult
+    }
+
+    suspend fun getCurrentWeatherData(
+        coorindates: Coordinates
+    ) : CurrentWeatherResult{
+        val status : Status
+        var currentWeatherResponse : CurrentWeatherResponse? = null
+        val currentWeatherResult:CurrentWeatherResult
+
+        val weatherResponse = weatherRemoteDataSource.getCurrentWeather(
+            coorindates.lat,
+            coorindates.lon,
+            appId = apiKey
+        )
+
+        if(weatherResponse.currentWeatherResponse == null){
+            status = Status.ERROR_REMOTE_FETCH
+            currentWeatherResult = CurrentWeatherResult(currentWeatherResponse,status)
+        }
+        else if(weatherResponse.currentWeatherResponse!!.cod.toInt() != 200){
+            status = Status.ERROR_INVALID_RESPONSE
+            currentWeatherResult = CurrentWeatherResult(currentWeatherResponse,status)
+        }
+        else if(weatherResponse.status != WeatherRemoteDataSource.ResponseStatus.SUCCESS){
+            status = Status.ERROR_REMOTE_FETCH
+            currentWeatherResult = CurrentWeatherResult(currentWeatherResponse,status)
+        }
+        else{
+            currentWeatherResponse = weatherResponse.currentWeatherResponse
+            status = Status.SUCCESS
+            currentWeatherResult = CurrentWeatherResult(currentWeatherResponse,status)
+        }
+        return currentWeatherResult
+    }
+
+    suspend fun insertWeatherData(
+        weatherTimed: WeatherTimed
+    ) : Long{
+        return weatherLocalDataSource.insertWeather(WeatherResponseEntity(response = weatherTimed))
+    }
+
+    suspend fun updateWeatherData(
+        id : Int,
+        weatherTimed: WeatherTimed
+    ): Int{
+        return weatherLocalDataSource.updateWeather(WeatherResponseEntity(id,weatherTimed))
+    }
+
+    suspend fun deleteWeatherData(
+        weatherTimed: WeatherTimed
+    ): Int{
+        return weatherLocalDataSource.deleteWeather(WeatherResponseEntity(response = weatherTimed))
+    }
+
+    suspend fun deleteAllWeatherData(): Int{
+       return weatherLocalDataSource.deleteAllWeather()
+    }
+}

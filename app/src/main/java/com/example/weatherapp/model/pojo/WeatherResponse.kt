@@ -1,6 +1,12 @@
 package com.example.weatherapp.model.pojo
 
 import com.google.gson.annotations.SerializedName
+import java.time.LocalDateTime
+
+data class WeatherTimed(
+    var weatherResponse: WeatherResponse,
+    var localDateTime: LocalDateTime
+)
 
 data class WeatherResponse(
     val cod: String,
@@ -21,6 +27,7 @@ data class WeatherList(
     val sys: Sys,
     @SerializedName("dt_txt")
     val dtTxt: String,
+
 )
 
 data class Main(
