@@ -3,7 +3,7 @@ package com.example.weatherapp.model.pojo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
-import com.example.weatherapp.model.data.source.local.WeatherTypeConverters
+import com.example.weatherapp.model.data.source.local.weather.WeatherTypeConverters
 
 @Entity(tableName = "weather_table")
 data class WeatherResponseEntity(

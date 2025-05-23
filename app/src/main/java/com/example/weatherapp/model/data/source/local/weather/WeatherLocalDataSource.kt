@@ -1,9 +1,9 @@
-package com.example.weatherapp.model.data.source.local
+package com.example.weatherapp.model.data.source.local.weather
 
 import android.content.Context
 import com.example.weatherapp.model.pojo.WeatherResponseEntity
 
-class WeatherLocalDataSource(private val context: Context) : I_WeatherLocalDataSource{
+class WeatherLocalDataSource(private val context: Context) : I_WeatherLocalDataSource {
 
     private val weatherDao: WeatherDAO by lazy {
         WeatherDataBase.getInstance(context).weatherDao()

@@ -11,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.weatherapp"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
@@ -52,27 +52,42 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
+
+    /*Nav Controller*/
     val nav_version = "2.7.7"
     implementation("androidx.navigation:navigation-fragment-ktx:$nav_version")
     implementation("androidx.navigation:navigation-ui-ktx:$nav_version")
     implementation("com.google.android.material:material:1.12.0")
 
 
+    /*Retrofit*/
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation("com.google.code.gson:gson:2.10.1")
 
+    /*Room*/
     implementation("androidx.room:room-ktx:2.7.0")
     implementation("androidx.room:room-runtime:2.7.0")
     kapt("androidx.room:room-compiler:2.7.0")
 
+
+    /*Glide*/
     implementation("com.github.bumptech.glide:glide:4.16.0")
     kapt("com.github.bumptech.glide:compiler:4.16.0")
 
+    /*viewmodel & livedata*/
     implementation("androidx.lifecycle:lifecycle-extensions:2.2.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.5.1")
 
+    /* Coroutines */
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.0")
+
+    /*Location Services*/
+    implementation("com.google.android.gms:play-services-location:21.1.0")
+
+    /*Open Street Map*/
+    implementation("org.osmdroid:osmdroid-android:6.1.20")
+
 
 }

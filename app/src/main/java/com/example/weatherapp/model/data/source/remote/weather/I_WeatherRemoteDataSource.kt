@@ -1,6 +1,4 @@
-package com.example.weatherapp.model.data.source.remote
-
-import com.example.weatherapp.model.pojo.WeatherResponse
+package com.example.weatherapp.model.data.source.remote.weather
 
 interface I_WeatherRemoteDataSource {
     suspend fun getWeather(

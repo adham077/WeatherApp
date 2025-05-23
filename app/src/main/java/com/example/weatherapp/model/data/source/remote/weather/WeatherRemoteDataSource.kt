@@ -1,4 +1,4 @@
-package com.example.weatherapp.model.data.source.remote
+package com.example.weatherapp.model.data.source.remote.weather
 
 import android.content.Context
 import com.example.weatherapp.model.pojo.CurrentWeatherResponse

@@ -344,13 +344,16 @@
                 </LinearLayout>
 
                 <ProgressBar
-                    android:id="@+id/pressure_gauge"
+                    android:id="@+id/temperature_range_bar"
                     style="?android:attr/progressBarStyleHorizontal"
-                    android:layout_width="100dp"
-                    android:layout_height="wrap_content"
-                    android:max="1050"
-                    android:progress="1013"
-                    android:progressDrawable="@drawable/pressure_gauge_drawable"/>
+                    android:layout_width="match_parent"
+                    android:layout_height="8dp"
+                    android:max="100"
+                    android:progress="70"
+                    android:secondaryProgress="30"
+                    android:progressDrawable="@drawable/temperature_bar_gradient"
+                    android:layout_marginTop="8dp"/>
+
             </LinearLayout>
         </androidx.cardview.widget.CardView>
     </LinearLayout>

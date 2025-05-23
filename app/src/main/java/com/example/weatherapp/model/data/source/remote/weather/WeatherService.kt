@@ -1,6 +1,5 @@
-package com.example.weatherapp.model.data.source.remote
+package com.example.weatherapp.model.data.source.remote.weather
 
-import com.example.weatherapp.model.pojo.WeatherResponse
 import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.http.GET
