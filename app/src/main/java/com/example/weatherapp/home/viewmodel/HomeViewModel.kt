@@ -104,9 +104,17 @@ class HomeViewModel(private val repository: WeatherRepository) : ViewModel() {
         }
     }
 
-    fun updateWeather() {
+    fun updateWeather(id : Int, weatherTimed: WeatherTimed) {
         viewModelScope.launch {
-
+            repository.updateWeatherData(id, weatherTimed).let { result ->
+                withContext(Dispatchers.Main) {
+                    if (result > 0) {
+                        _updateWeatherStatus.postValue(true)
+                    } else {
+                        _updateWeatherStatus.postValue(false)
+                    }
+                }
+            }
         }
     }
 }
