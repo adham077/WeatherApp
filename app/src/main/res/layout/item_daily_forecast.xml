@@ -6,7 +6,7 @@
     android:layout_height="wrap_content"
     app:cardCornerRadius="12dp"
     app:cardElevation="4dp"
-    app:cardBackgroundColor="#80FFFFFF"
+    app:cardBackgroundColor="#331A237E"
     android:layout_marginBottom="8dp">
 
     <LinearLayout
@@ -61,16 +61,29 @@
                     android:textColor="@color/text_primary"/>
             </LinearLayout>
 
-            <ProgressBar
-                android:id="@+id/temperature_range_bar"
-                style="?android:attr/progressBarStyleHorizontal"
+            <FrameLayout
+                android:id="@+id/temperature_bar_container"
                 android:layout_width="match_parent"
                 android:layout_height="8dp"
-                android:layout_marginTop="8dp"
-                android:max="100"
-                android:progress="70"
-                android:secondaryProgress="30"
-                android:progressDrawable="@drawable/temperature_bar_gradient"/>
+                android:layout_marginTop="4dp">
+
+                <ProgressBar
+                    android:id="@+id/temperature_range_bar"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:max="100"
+                    android:progress="80"
+                    android:progressDrawable="@drawable/temperature_bar_gradient" />
+
+                <View
+                    android:id="@+id/start_mask"
+                    android:layout_width="50dp"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/tempreature_bar_start_background" />
+            </FrameLayout>
+
+
         </LinearLayout>
     </LinearLayout>
 </androidx.cardview.widget.CardView>

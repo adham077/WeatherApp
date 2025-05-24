@@ -88,6 +88,18 @@ dependencies {
 
     /*Open Street Map*/
     implementation("org.osmdroid:osmdroid-android:6.1.20")
+    implementation("org.osmdroid:osmdroid-mapsforge:6.1.16")
+    implementation("org.osmdroid:osmdroid-geopackage:6.1.16")
+
+    /*GeoCoding*/
+    implementation("com.github.MKergall:osmbonuspack:6.9.0")
+
+
+    /*Gauge View*/
+    implementation("com.github.Gruzer:simple-gauge-android:0.3.1")
+
+    /*Compass View*/
+    implementation("com.github.arbelkilani:Compass-View:v1.1.1")
 
 
 }

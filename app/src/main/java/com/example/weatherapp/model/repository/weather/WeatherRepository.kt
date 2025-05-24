@@ -56,7 +56,6 @@ class WeatherRepository private constructor(private val weatherLocalDataSource: 
     )
 
 
-    @RequiresApi(Build.VERSION_CODES.O)
     suspend fun getWeatherData(
         src : Source,
         coordinates: Coordinates? = null,
@@ -170,5 +169,9 @@ class WeatherRepository private constructor(private val weatherLocalDataSource: 
 
     suspend fun deleteAllWeatherData(): Int = withContext(Dispatchers.IO){
         weatherLocalDataSource.deleteAllWeather()
+    }
+
+    suspend fun getAllFavWeather() : List<WeatherResponseEntity>? = withContext(Dispatchers.IO) {
+        weatherLocalDataSource.getAllWeather()
     }
 }

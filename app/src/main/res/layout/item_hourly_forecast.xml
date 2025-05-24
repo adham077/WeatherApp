@@ -6,38 +6,41 @@
     android:layout_height="wrap_content"
     app:cardCornerRadius="12dp"
     app:cardElevation="4dp"
-    app:cardBackgroundColor="#80FFFFFF"
-    android:layout_marginEnd="8dp">
+    app:cardBackgroundColor="#331A237E"
+    android:layout_margin="8dp">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="12dp"
-        android:gravity="center">
+<LinearLayout
+android:layout_width="match_parent"
+android:layout_height="wrap_content"
+android:orientation="vertical"
+android:padding="8dp"
+android:gravity="center">
 
-        <TextView
-            android:id="@+id/hourly_time"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="12:00"
-            android:textSize="16sp"
-            android:textColor="@color/text_primary"/>
+<TextView
+    android:id="@+id/hourly_time"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="12:00"
+    android:textSize="14sp"
+    android:textColor="@color/colorSecondary"
+android:textStyle="bold"/>
 
-        <ImageView
-            android:id="@+id/hourly_weather_icon"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:src="@drawable/ic_launcher_foreground"
-            android:layout_marginTop="8dp"/>
+<ImageView
+    android:id="@+id/hourly_weather_icon"
+    android:layout_width="40dp"
+    android:layout_height="40dp"
+    android:src="@drawable/ic_launcher_foreground"
+    android:tint="@color/colorAccent"
+android:layout_marginTop="4dp"/>
 
-        <TextView
-            android:id="@+id/hourly_temperature"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="23°C"
-            android:textSize="18sp"
-            android:textColor="@color/colorAccent"
-            android:layout_marginTop="8dp"/>
-    </LinearLayout>
-</androidx.cardview.widget.CardView>
+<TextView
+    android:id="@+id/hourly_temperature"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="23°C"
+    android:textSize="16sp"
+    android:textColor="@color/colorAccent"
+android:layout_marginTop="4dp"
+android:textStyle="bold"/>
+</LinearLayout>
+    </androidx.cardview.widget.CardView>
