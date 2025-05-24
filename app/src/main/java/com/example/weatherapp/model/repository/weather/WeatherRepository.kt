@@ -1,6 +1,7 @@
 package com.example.weatherapp.model.repository.weather
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import com.example.weatherapp.key.apiKey
 import com.example.weatherapp.model.data.source.local.weather.I_WeatherLocalDataSource
@@ -87,18 +88,25 @@ class WeatherRepository private constructor(private val weatherLocalDataSource: 
                     if(_weatherResponse.weatherResponse == null){
                         status = Status.ERROR_REMOTE_FETCH
                         weatherResult = WeatherResult(weatherTimed,status)
+                        Log.i("WeatherRepository", "getWeatherData: Remote fetch error: ${_weatherResponse.status}")
+
                     }
                     else if(_weatherResponse.weatherResponse!!.cod != "200"){
                         status = Status.ERROR_INVALID_RESPONSE
                         weatherResult = WeatherResult(weatherTimed,status)
+                        Log.i("WeatherRepository", "getWeatherData: No data found for the given coordinates")
+
                     }
                     else if(_weatherResponse.status != WeatherRemoteDataSource.ResponseStatus.SUCCESS){
                         status = Status.ERROR_REMOTE_FETCH
                         weatherResult = WeatherResult(weatherTimed,status)
+                        Log.i("WeatherRepository", "getWeatherData: Remote fetch error: ${_weatherResponse.status}")
+
                     }
                     else if(_weatherResponse.weatherResponse!!.list.isEmpty()){
                         status = Status.ERROR_INVALID_RESPONSE
                         weatherResult = WeatherResult(weatherTimed,status)
+                        Log.i("WeatherRepository", "getWeatherData: No data found for the given coordinates")
                     }
                     else{
                         weatherTimed = WeatherTimed(
@@ -148,6 +156,13 @@ class WeatherRepository private constructor(private val weatherLocalDataSource: 
         currentWeatherResult
     }
 
+
+    suspend fun insertWeatherData(
+        weatherResponseEntity: WeatherResponseEntity
+    ): Long = withContext(Dispatchers.IO){
+        weatherLocalDataSource.insertWeather(weatherResponseEntity)
+    }
+
     suspend fun insertWeatherData(
         weatherTimed: WeatherTimed
     ) : Long = withContext(Dispatchers.IO){
@@ -162,6 +177,12 @@ class WeatherRepository private constructor(private val weatherLocalDataSource: 
     }
 
     suspend fun deleteWeatherData(
+        id: Int
+    ): Int = withContext(Dispatchers.IO){
+        weatherLocalDataSource.deleteWeatherById(id)
+    }
+
+    suspend fun deleteWeatherData(
         weatherTimed: WeatherTimed
     ): Int = withContext(Dispatchers.IO){
         weatherLocalDataSource.deleteWeather(WeatherResponseEntity(response = weatherTimed))
@@ -173,5 +194,9 @@ class WeatherRepository private constructor(private val weatherLocalDataSource: 
 
     suspend fun getAllFavWeather() : List<WeatherResponseEntity>? = withContext(Dispatchers.IO) {
         weatherLocalDataSource.getAllWeather()
+    }
+
+    suspend fun getWeatherById(id: Int): WeatherResponseEntity? = withContext(Dispatchers.IO) {
+        weatherLocalDataSource.getWeatherById(id)
     }
 }

@@ -9,4 +9,5 @@ interface I_WeatherLocalDataSource {
     suspend fun getWeatherById(id: Int): WeatherResponseEntity?
     suspend fun getAllWeather(): List<WeatherResponseEntity>?
     suspend fun deleteAllWeather(): Int
+    suspend fun deleteWeatherById(id: Int): Int
 }

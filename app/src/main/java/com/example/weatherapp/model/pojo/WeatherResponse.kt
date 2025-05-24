@@ -23,7 +23,7 @@ data class WeatherList(
     val clouds: Clouds,
     val wind: Wind,
     val visibility: Long,
-    val pop: Long,
+    val pop: Double,
     val sys: Sys,
     @SerializedName("dt_txt")
     val dtTxt: String,

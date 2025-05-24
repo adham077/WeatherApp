@@ -1,4 +1,5 @@
 package com.example.weatherapp.favorites.viewmodel
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -35,6 +36,9 @@ class FavoriteViewModel(private val repository: WeatherRepository) : ViewModel()
     private val _saveLocationLiveData = MutableLiveData<Boolean>()
     val saveLocationLiveData : LiveData<Boolean> = _saveLocationLiveData
 
+    private val _deleteLocationLiveData = MutableLiveData<Boolean>()
+    val deleteLocationLiveData : LiveData<Boolean> = _deleteLocationLiveData
+
     private val _favoriteLocationsLiveData = MutableLiveData<FavoriteLocationsResponse>()
     val favoriteLocationsLiveData : LiveData<FavoriteLocationsResponse> = _favoriteLocationsLiveData
 
@@ -44,6 +48,9 @@ class FavoriteViewModel(private val repository: WeatherRepository) : ViewModel()
                 WeatherRepository.Source.REMOTE,
                 WeatherRepository.Coordinates(lat, lon)
             )
+            Log.i("FavoriteViewModel", "saveLocationWeather: lat = $lat, lon = $lon")
+
+            Log.i("FavoriteViewModel", "saveLocationWeather: ${result.status}")
 
             if(result.status == WeatherRepository.Status.SUCCESS){
                 val weather = result.weatherTimed
@@ -81,6 +88,17 @@ class FavoriteViewModel(private val repository: WeatherRepository) : ViewModel()
                 )
             }
             _favoriteLocationsLiveData.postValue(factoryLocationsResponse)
+        }
+    }
+
+    fun deleteLocationWeather(id : Int){
+        viewModelScope.launch {
+            val result = repository.deleteWeatherData(id)
+            if (result>= 0) {
+                _deleteLocationLiveData.postValue(true)
+            } else {
+                _deleteLocationLiveData.postValue(false)
+            }
         }
     }
 

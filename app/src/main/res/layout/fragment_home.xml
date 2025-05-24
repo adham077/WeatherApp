@@ -359,14 +359,6 @@
                         android:textColor="@color/colorAccent"/>
                 </LinearLayout>
 
-                <edu.arbelkilani.compass.Compass
-                    android:id="@+id/compass_1"
-                    android:layout_width="100dp"
-                    android:layout_height="100dp"
-                    app:degree_color="@color/colorAccent"
-                    app:orientation_labels_color="@color/colorSecondary"
-                    app:degree_value_color="@color/colorSecondary"
-                    app:border_color="@color/colorSecondary"/>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
@@ -410,12 +402,7 @@
                         android:textColor="@color/colorSecondary"/>
                 </LinearLayout>
 
-                <com.ekn.gruzer.gaugelibrary.ArcGauge
-                    android:id="@+id/pressureArcGauge"
-                    android:layout_width="100dp"
-                    android:layout_height="100dp"
-                    app:needleColor="@color/colorAccent"
-                    app:arcColor="@color/colorSecondary"/>
+
             </LinearLayout>
         </androidx.cardview.widget.CardView>
     </LinearLayout>

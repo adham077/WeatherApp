@@ -4,10 +4,12 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Looper
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.annotation.RequiresPermission
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -26,6 +28,7 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
+import com.google.android.material.snackbar.Snackbar
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
@@ -46,7 +49,7 @@ class AddFavorite : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireContext())
+
     }
 
     override fun onCreateView(
@@ -60,7 +63,7 @@ class AddFavorite : Fragment() {
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireContext())
         val factory = FavoriteViewModelFactory(
             WeatherRepository.getInstance(
                 WeatherLocalDataSource(requireContext()),
@@ -68,7 +71,6 @@ class AddFavorite : Fragment() {
             )
         )
         viewModel = ViewModelProvider(this, factory)[FavoriteViewModel::class.java]
-
 
         if(checkPermissions()){
             getLocation{success, lat, long -> Unit
@@ -86,46 +88,62 @@ class AddFavorite : Fragment() {
 
         binding.btnSave.setOnClickListener{
             if(selectedLocation != null){
+                val lat = selectedLocation!!.latitude
+                val long =  selectedLocation!!.longitude
+                Log.i("AddFavorite", "onViewCreated: lat = $lat, long = $long")
                 viewModel.saveLocationWeather(
-                    selectedLocation!!.latitude,
-                    selectedLocation!!.longitude
+                    lat,
+                    long
                 )
             }
+
         }
 
         viewModel.saveLocationLiveData.observe(viewLifecycleOwner) {
             if(it){
 
+            } else {
+                Toast.makeText(
+                    requireContext(),
+                    "Failed to save location",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
 
     }
 
-    private fun setupMap(lat : Double = 48.8583 , long : Double = 2.2944) {
+    private fun setupMap(lat : Double = 29.991385 , long : Double = 31.268972) {
         Configuration.getInstance().userAgentValue = requireContext().packageName
         mapView = binding.mapView
         mapController =  mapView.controller as MapController
         mapView.setMultiTouchControls(true)
         mapView.setTileSource(TileSourceFactory.MAPNIK)
-        mapController.setZoom(9.5)
-        val startPoint = GeoPoint(48.8583, 2.2944);
-        mapController.setCenter(startPoint);
+        mapController.setZoom(11.5)
+        val startPoint = GeoPoint(lat, long)
+        mapController.setCenter(startPoint)
 
-        mapView.overlays.add(object : Overlay(){
+        val longPressOverlay = object : Overlay() {
             override fun onLongPress(event: MotionEvent, mapView: MapView?): Boolean {
                 val point = mapView?.projection?.fromPixels(event.x.toInt(), event.y.toInt()) as GeoPoint
                 selectedLocation = point
-
-                mapView.overlays.clear()
+                val overlays = mapView.overlays.toMutableList().apply {
+                    removeAll { it is Marker }
+                }
                 val marker = Marker(mapView).apply {
                     position = point
                     setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
                 }
-                mapView.overlays.add(marker)
+                overlays.add(marker)
+                mapView.overlays.clear()
+                mapView.overlays.addAll(overlays)
                 mapController.animateTo(point)
+                mapView.invalidate()
                 return true
             }
-        })
+        }
+
+        mapView.overlays.add(longPressOverlay)
     }
 
     private fun searchLocation(){

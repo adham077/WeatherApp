@@ -2,7 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     id("kotlin-kapt")
-
+    id("androidx.navigation.safeargs.kotlin")
 }
 
 android {
@@ -52,7 +52,6 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
-
     /*Nav Controller*/
     val nav_version = "2.7.7"
     implementation("androidx.navigation:navigation-fragment-ktx:$nav_version")
@@ -87,19 +86,31 @@ dependencies {
     implementation("com.google.android.gms:play-services-location:21.1.0")
 
     /*Open Street Map*/
-    implementation("org.osmdroid:osmdroid-android:6.1.20")
-    implementation("org.osmdroid:osmdroid-mapsforge:6.1.16")
-    implementation("org.osmdroid:osmdroid-geopackage:6.1.16")
-
+    implementation("org.osmdroid:osmdroid-android:6.1.20"){
+        exclude(group = "com.j256.ormlite", module = "ormlite-core"
+        )
+    }
+    implementation("org.osmdroid:osmdroid-mapsforge:6.1.16"){
+        exclude(group = "com.j256.ormlite", module = "ormlite-core"
+        )
+    }
+    implementation("org.osmdroid:osmdroid-geopackage:6.1.16") {
+        exclude(group = "com.j256.ormlite", module = "ormlite-core"
+        )
+    }
     /*GeoCoding*/
     implementation("com.github.MKergall:osmbonuspack:6.9.0")
 
 
     /*Gauge View*/
-    implementation("com.github.Gruzer:simple-gauge-android:0.3.1")
+    implementation("com.github.anastr:speedviewlib:1.6.0")
 
-    /*Compass View*/
-    implementation("com.github.arbelkilani:Compass-View:v1.1.1")
 
+    configurations.all {
+        resolutionStrategy {
+            force("androidx.core:core:1.16.0")
+        }
+    }
 
 }
+

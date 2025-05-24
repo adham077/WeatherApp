@@ -1,6 +1,7 @@
 package com.example.weatherapp.model.data.source.remote.weather
 
 import android.content.Context
+import android.util.Log
 import com.example.weatherapp.model.pojo.CurrentWeatherResponse
 import com.example.weatherapp.model.pojo.WeatherResponse
 import com.google.gson.Gson
@@ -60,11 +61,15 @@ class WeatherRemoteDataSource(private val context : Context) : I_WeatherRemoteDa
                 val gson = Gson()
                 result.weatherResponse = gson.fromJson(result.weatherJsonString, WeatherResponse::class.java)
                 result.status = ResponseStatus.SUCCESS
+                Log.i("WeatherRemoteDataSource", "getWeather: Response successful")
             } else {
                 result.status = ResponseStatus.ERROR
+                Log.i("WeatherRemoteDataSource", "getWeather: Response not successful: ${response.code()}")
             }
         } catch (e: Exception) {
             result.status = ResponseStatus.ERROR
+            e.printStackTrace()
+            Log.i("WeatherRemoteDataSource", "getWeather: Exception occurred: ${e.message}")
         }
         return result
     }

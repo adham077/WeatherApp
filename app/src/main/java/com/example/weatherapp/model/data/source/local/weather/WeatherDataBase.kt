@@ -25,6 +25,7 @@ abstract class WeatherDataBase : RoomDatabase() {
                     "weather_database"
                 ).build()
                 instance = newInstance
+                instance?.openHelper?.writableDatabase
                 newInstance
             }
         }

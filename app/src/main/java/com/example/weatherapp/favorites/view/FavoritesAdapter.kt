@@ -6,7 +6,7 @@ import com.example.weatherapp.databinding.ItemFavoriteBinding
 import com.example.weatherapp.model.pojo.WeatherResponseEntity
 
 typealias OnFavoriteItemDetailsCLicked = (itemID : Int) -> Unit
-typealias OnFavoriteDeleteCLicked = (itemId : Int) -> Unit
+typealias OnFavoriteDeleteCLicked = (itemId : Int,itemIndex : Int) -> Unit
 
 class FavoritesAdapter(
     private var favoritesWeatherList : List<WeatherResponseEntity>?,
@@ -15,6 +15,23 @@ class FavoritesAdapter(
 ) : RecyclerView.Adapter<FavoritesAdapter.FavoriteViewHolder>() {
 
     class FavoriteViewHolder(val binding: ItemFavoriteBinding) : RecyclerView.ViewHolder(binding.root)
+
+    fun changeDataSet(newFavoritesWeatherList: List<WeatherResponseEntity>?) {
+        favoritesWeatherList = newFavoritesWeatherList
+        notifyDataSetChanged()
+    }
+
+    fun removeItem(itemId: Int, itemIndex: Int) {
+        if(itemIndex >= 0 && itemIndex < favoritesWeatherList!!.size) {
+            favoritesWeatherList = favoritesWeatherList?.toMutableList()
+            (favoritesWeatherList as MutableList).removeAt(itemIndex)
+        }
+    }
+
+    fun addItem(item: WeatherResponseEntity) {
+        favoritesWeatherList = favoritesWeatherList?.toMutableList()?.apply { add(item) }
+        notifyItemInserted(favoritesWeatherList!!.size - 1)
+    }
 
     override fun onCreateViewHolder(
         parent: ViewGroup,
@@ -30,12 +47,12 @@ class FavoritesAdapter(
         position: Int
     ) {
         holder.binding.btnRemove.setOnClickListener {
-            onFavoriteItemDeleteCLicked(favoritesWeatherList!!.get(0).id)
+            onFavoriteItemDeleteCLicked(favoritesWeatherList!!.get(position).id,position)
         }
         holder.binding.btnSelectDetails.setOnClickListener {
-            onFavoriteItemDetailsCLicked(favoritesWeatherList!!.get(0).id)
+            onFavoriteItemDetailsCLicked(favoritesWeatherList!!.get(position).id)
         }
-        holder.binding.locationName.text = favoritesWeatherList?.get(0)?.response?.weatherResponse?.city?.name
+        holder.binding.locationName.text = favoritesWeatherList?.get(position)?.response?.weatherResponse?.city?.name
     }
 
     override fun getItemCount(): Int {

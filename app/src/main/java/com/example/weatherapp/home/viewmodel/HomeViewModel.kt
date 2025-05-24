@@ -7,6 +7,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.example.weatherapp.model.pojo.WeatherResponseEntity
+import com.example.weatherapp.model.pojo.WeatherTimed
 import com.example.weatherapp.model.repository.weather.WeatherRepository
 import com.example.weatherapp.model.repository.weather.WeatherRepository.Coordinates
 import com.example.weatherapp.model.repository.weather.WeatherRepository.CurrentWeatherResult
@@ -34,6 +36,14 @@ class HomeViewModel(private val repository: WeatherRepository) : ViewModel() {
     private val _weatherResult = MutableLiveData<WeatherRepository.WeatherResult>()
     val weatherResult : LiveData<WeatherRepository.WeatherResult> = _weatherResult
 
+    private val _savedWeatherResult = MutableLiveData<WeatherResponseEntity?>()
+    val savedWeatherResult: LiveData<WeatherResponseEntity?> = _savedWeatherResult
+
+    private val _updateWeatherStatus = MutableLiveData<Boolean>()
+    val updateWeatherStatus: LiveData<Boolean> = _updateWeatherStatus
+
+    private val _insertWeatherStatus = MutableLiveData<Boolean>()
+    val insertWeatherStatus: LiveData<Boolean> = _insertWeatherStatus
 
     fun getCurrentWeather(coordinates: WeatherRepository.Coordinates) {
         viewModelScope.launch {
@@ -64,6 +74,39 @@ class HomeViewModel(private val repository: WeatherRepository) : ViewModel() {
                     _weatherResult.postValue(result)
                 }
             }
+        }
+    }
+
+    fun getSavedWeather(id : Int){
+        viewModelScope.launch {
+            repository.getWeatherById(id).let {
+                result ->
+                withContext(Dispatchers.Main) {
+                    _savedWeatherResult.postValue(result)
+                }
+            }
+        }
+    }
+
+    fun insertWeather(weatherResponseEntity: WeatherResponseEntity){
+        viewModelScope.launch {
+            repository.insertWeatherData(weatherResponseEntity).let {
+                result ->
+                withContext(Dispatchers.Main) {
+                    if(result >= 0){
+                        _insertWeatherStatus.postValue(true)
+                    }
+                    else{
+                        _insertWeatherStatus.postValue(false)
+                    }
+                }
+            }
+        }
+    }
+
+    fun updateWeather() {
+        viewModelScope.launch {
+
         }
     }
 }
