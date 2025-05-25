@@ -1,23 +1,17 @@
 package com.example.weatherapp.home.view
-
-import android.Manifest.permission.ACCESS_COARSE_LOCATION
-import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.content.SharedPreferences
-import android.content.pm.PackageManager
 import android.os.Bundle
-import android.os.Looper
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.RequiresPermission
-import androidx.core.content.ContextCompat
+import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.navArgs
+import androidx.lifecycle.observe
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.weatherapp.databinding.FragmentHomeBinding
 import com.example.weatherapp.home.viewmodel.HomeViewModel
 import com.example.weatherapp.home.viewmodel.HomeViewModelFactory
@@ -28,23 +22,19 @@ import com.example.weatherapp.model.pojo.WeatherList
 import com.example.weatherapp.model.pojo.WeatherResponseEntity
 import com.example.weatherapp.model.pojo.WeatherTimed
 import com.example.weatherapp.model.repository.weather.WeatherRepository
+import com.example.weatherapp.model.repository.weather.WeatherRepository.Source
 import com.example.weatherapp.utils.ForecastItem
 import com.example.weatherapp.utils.TempAverages
-import com.example.weatherapp.utils.convertKelvinToCelsius
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationServices
-import com.google.android.gms.location.Priority
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.time.Instant
-import java.time.LocalDate
+import kotlinx.coroutines.withContext
 import java.time.LocalDateTime
 import java.time.ZoneId
+import java.time.ZoneOffset
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.util.Locale
-
 
 class HomeFragment : Fragment() {
 
@@ -58,24 +48,57 @@ class HomeFragment : Fragment() {
     private var itemId: Int = 0
     private var fromGps: Boolean = false
     private var updatedFromRemote : MutableLiveData<Boolean> = MutableLiveData()
+    private var fetchedFromLocal : MutableLiveData<Boolean> = MutableLiveData()
     private lateinit var currentWeather : CurrentWeatherResponse
     private lateinit var weatherTimed : WeatherTimed
 
-    private enum class Units{
-        METRIC,
-        IMPERIAL,
-        STANDARD
-    }
+    data class Units(
+        val temperature: String = "Celsius",
+        val speed: String = "m/s",
+        val pressure: String = "hPa",
+        val visibility: String = "km",
+        val seaLevel : String = "m",
+    )
+
+    private lateinit var units : Units
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        /*SafeArgs Initialization*/
+        lat = arguments?.getFloat("lat")
+        long = arguments?.getFloat("long")
+        senderId = arguments?.getString("senderId")?: "InitialSetupFragment"
+        itemId = arguments?.getInt("itemId") ?: 1
+        fromGps = arguments?.getBoolean("fromGps") == true
+        sharedPreferences = requireContext().getSharedPreferences("WeatherAppPrefs", 0)
+
+        /*Units Initialization*/
+        units = Units(
+            temperature = sharedPreferences.getString("temperatureUnit", "Celsius") ?: "Celsius",
+            speed = sharedPreferences.getString("speedUnit", "m/s") ?: "m/s",
+            pressure = sharedPreferences.getString("pressureUnit", "hPa") ?: "hPa",
+            visibility = sharedPreferences.getString("visibilityUnit", "km") ?: "km",
+            seaLevel = sharedPreferences.getString("seaLevelUnit", "m") ?: "m",
+        )
+
+        /*ViewModel Initialization*/
+        val viewModelFactory = HomeViewModelFactory(
+            WeatherRepository.getInstance(
+                WeatherLocalDataSource(requireContext()),
+                WeatherRemoteDataSource(requireContext())
+            )
+        )
+        viewModel = ViewModelProvider(this, viewModelFactory)[HomeViewModel::class.java]
+
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        /*ViewBinding Initialization*/
         binding = FragmentHomeBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -83,157 +106,227 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val safeArgs = arguments?.let { HomeFragmentArgs.fromBundle(it) }
-
-        lat = safeArgs?.lat
-        long = safeArgs?.long
-        senderId = safeArgs?.senderID
-        itemId = safeArgs?.itemId ?: 0
-        fromGps = safeArgs?.fromGps ?: false
-
-        val factory = HomeViewModelFactory(
-            WeatherRepository.getInstance(
-                WeatherLocalDataSource(requireContext()),
-                WeatherRemoteDataSource(requireContext())
-            )
-        )
-        viewModel = ViewModelProvider(this, factory)[HomeViewModel::class.java]
-
         if(senderId == "InitialSetupFragment"){
-            updateWeatherData(0)
-        }
-
-        updatedFromRemote.observe(viewLifecycleOwner) {
-            if(it){
-                setupMainCard(currentWeather, Units.METRIC)
-                lifecycleScope.launch(Dispatchers.Default) {
-                    val lists = setupLists()
-                    val hourlyForecastList = lists.first
-                    val fiveDayForecastMap = lists.second
-                    /*
-                    * Setup hourly & 5day recyclers
-                    * */
+            Log.i("HomeFragment", "${lat} ${long}")
+            fetchFromRemote(Pair(lat?: 0.0f,long?: 0.0f))
+            updatedFromRemote.observe(viewLifecycleOwner) {
+                if(it){
+                    updateWeatherData(1, weatherTimed)
+                    setupViewOnline(units, weatherTimed, currentWeather)
+                }
+                else{
+                    fetchFromLocal(1)
+                    fetchedFromLocal.observe(viewLifecycleOwner) {
+                        if(it){
+                            setupOfflineView(units, weatherTimed)
+                        }
+                        else{
+                            Toast.makeText(
+                                requireContext(),
+                                "Failed to fetch weather data",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
                 }
             }
-        }
+       }
+
     }
 
-    private fun updateWeatherData(id : Int){
-        viewModel.getWeather(
-            WeatherRepository.Source.REMOTE,
-            WeatherRepository.Coordinates(lat!!.toDouble(),long!!.toDouble())
+    private fun fetchFromRemote(coordinates: Pair<Float, Float>) {
+        Log.i("HomeFragment", "Fetching weather data from remote")
+        viewModel.getCurrentWeather(WeatherRepository.Coordinates(
+            coordinates.first.toDouble(),
+            coordinates.second.toDouble())
         )
-        viewModel.weatherResult.observe(viewLifecycleOwner){
-            if(it.status == WeatherRepository.Status.SUCCESS){
-                viewModel.getSavedWeather(id)
-                viewModel.savedWeatherResult.observe(viewLifecycleOwner){ savedWeather ->
-                    if(savedWeather == null){
-                        viewModel.insertWeather(
-                            WeatherResponseEntity(
-                                id = id,
-                                response = it.weatherTimed!!
-                            )
-                        )
-                    }
-                    else{
-                        viewModel.updateWeather(
-                            savedWeather.id,
-                            it.weatherTimed!!
-                        )
-                    }
-                    weatherTimed = it.weatherTimed!!
-                    viewModel.getCurrentWeather(WeatherRepository.Coordinates(lat!!.toDouble(),long!!.toDouble()))
-                    viewModel.currentWeatherResult.observe(viewLifecycleOwner) {
-                        if(it.status == WeatherRepository.Status.SUCCESS){
-                            currentWeather = it.currentWeatherResponse!!
-                            updatedFromRemote.postValue(true)
-                        }
-                        else {
-                            updatedFromRemote.postValue(false)
-                        }
-                    }
-                }
+        viewModel.currentWeatherResult.observe(viewLifecycleOwner) { result ->
+            if(result.status != WeatherRepository.Status.SUCCESS){
+                updatedFromRemote.postValue(false)
+                Log.i("HomeFragment", "Failed to fetch current weather data from remote")
             }
             else{
-
+                currentWeather = result.currentWeatherResponse!!
+                viewModel.getWeather(
+                    Source.REMOTE,
+                    WeatherRepository.Coordinates(
+                        coordinates.first.toDouble(),
+                        coordinates.second.toDouble()
+                    )
+                )
+                viewModel.weatherResult.observe(viewLifecycleOwner) {result->
+                    if(result.status != WeatherRepository.Status.SUCCESS){
+                        updatedFromRemote.postValue(false)
+                        Log.i("HomeFragment", "Failed to fetch weather data from remote")
+                    }
+                    else{
+                        weatherTimed = result.weatherTimed!!
+                        updatedFromRemote.postValue(true)
+                        Log.i("HomeFragment", "Successfully fetched weather data from remote")
+                    }
+                }
             }
         }
     }
 
-    private fun setupMainCard(currentWeather : CurrentWeatherResponse,units : Units){
-        binding.cityName.text = "${currentWeather.name}, ${currentWeather.sys.country}"
-        var temp : Double = 0.0
-        var highTemp : Double = 0.0
-        var lowTemp : Double = 0.0
-        var humidity : Long = 0
-        var pressure : Long = 0
-        var windSpeed : Double = 0.0
-        var visibility : Long = 0
-        var seaLevel = currentWeather.main.seaLevel
-        var grndLevel = currentWeather.main.grndLevel
-        var sunset  = currentWeather.sys.sunset
-        var sunrise = currentWeather.sys.sunrise
-        if(units == Units.METRIC){
-            temp = (currentWeather.main.temp)
-            highTemp = (currentWeather.main.tempMax)
-            lowTemp = (currentWeather.main.tempMin)
-            visibility = currentWeather.visibility / 1000
-            pressure = currentWeather.main.pressure
-            windSpeed = currentWeather.wind.speed
-            humidity = currentWeather.main.humidity
+    private fun fetchFromLocal(id : Int){
+        viewModel.getSavedWeather(id)
+        viewModel.savedWeatherResult.observe(viewLifecycleOwner) {
+            result ->
+            if(result != null){
+                weatherTimed = result.response
+                fetchedFromLocal.postValue(true)
+            }
+            else{
+                fetchedFromLocal.postValue(false)
+            }
         }
-
-        val localDateTime = weatherTimed.localDateTime
-        val formatter = DateTimeFormatter.ofPattern("d/M/yyyy HH:mm:ss")
-        val formatted = localDateTime.format(formatter)
-
-        binding.lastUpdate.text = "Last Update: " + formatted
-        binding.currentTemperature.text = "${temp.toInt()} °C"
-        binding.weatherDescription.text = currentWeather.weather[0].description
-        binding.highTemp.text = "High: ${highTemp.toInt()} °C"
-        binding.lowTemp.text = "Low: ${lowTemp.toInt()} °C"
-        binding.cityName.text = "${currentWeather.name}, ${currentWeather.sys.country}"
-        binding.humidity.text = "${humidity}%"
-        binding.pressure.text = "${pressure} hPa"
-        binding.windSpeed.text = "${windSpeed} m/s"
-        binding.seaLevel.text = "${seaLevel} m"
-        binding.groundLevel.text = "${grndLevel} m"
     }
 
-    private fun setup5DayRecycler(){
-
+    private fun updateWeatherData(id : Int, weatherTimed: WeatherTimed) {
+        viewModel.getSavedWeather(id)
+        viewModel.savedWeatherResult.observe(viewLifecycleOwner) {
+            result ->
+            if(result == null){
+                viewModel.insertWeather(
+                    WeatherResponseEntity(
+                        response = weatherTimed,
+                        id = id
+                    )
+                )
+            }
+            else{
+                viewModel.updateWeather(
+                    id = id,
+                    weatherTimed = weatherTimed
+                )
+            }
+        }
     }
 
-    private fun setupHourlyRecycler(){
-
+    private fun setupOfflineView(units: Units,weatherTimed: WeatherTimed){
+        lifecycleScope.launch(Dispatchers.Default) {
+            val lists = setupLists(weatherTimed)
+            val hourlyForecastList = lists.first
+            val fiveDayForecastMap = lists.second
+            val maxTemp = hourlyForecastList.maxOf { it.main.tempMax }
+            val minTemp = hourlyForecastList.minOf { it.main.tempMin }
+            val currentTemp = hourlyForecastList.get(0).main.temp
+            val currentPressure = hourlyForecastList.get(0).main.pressure
+            val currentVisibility = hourlyForecastList.get(0).visibility
+            val currentSeaLevel = hourlyForecastList.get(0).main.seaLevel
+            val currentGroundLevel = hourlyForecastList.get(0).main.grndLevel
+            withContext(Dispatchers.Main) {
+                binding.apply {
+                    lastUpdate.text = "Last Update: ${weatherTimed.localDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))}"
+                    cityName.text = "${weatherTimed.weatherResponse.city.name}, ${weatherTimed.weatherResponse.city.country}"
+                    if(units.temperature == "Celsius") {
+                        currentTemperature.text = "${currentTemp.toInt()}°C"
+                        lowTemp.text = "Low: ${minTemp.toInt()}°C"
+                        highTemp.text = "High: ${maxTemp.toInt()}°C"
+                    }
+                    if(units.pressure == "hPa") {
+                        pressure.text = "$currentPressure hPa"
+                    }
+                    if(units.speed == "m/s") {
+                        windSpeed.text = "${weatherTimed.weatherResponse.list[0].wind.speed} m/s"
+                    }
+                    if(units.visibility == "km") {
+                        visibility.text = "${currentVisibility / 1000} km"
+                    }
+                    if(units.seaLevel == "m") {
+                        seaLevel.text = "${currentSeaLevel} m"
+                        groundLevel.text = "${currentGroundLevel} m"
+                    }
+                    setup5DayRecycler(fiveDayForecastMap)
+                    setupHourlyRecycler(hourlyForecastList, getZoneId(weatherTimed.weatherResponse.city.timezone))
+                }
+            }
+        }
     }
 
-    private suspend fun setupLists() : Pair<List<WeatherList>,Map<String, ForecastItem>> {
+
+    private fun setupViewOnline(units: Units,weatherTimed: WeatherTimed,currentWeather: CurrentWeatherResponse){
+        lifecycleScope.launch(Dispatchers.Default) {
+            val (hourlyForecastList, fiveDayForecastMap) = setupLists(weatherTimed)
+            withContext(Dispatchers.Main) {
+                binding.apply {
+                    lastUpdate.text = "Last Update: ${LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))}"
+                    cityName.text = "${currentWeather.name}, ${currentWeather.sys.country}"
+                    if(units.temperature == "Celsius") {
+                        currentTemperature.text = "${currentWeather.main.temp.toInt()}°C"
+                        lowTemp.text = "Low: ${currentWeather.main.tempMin.toInt()}°C"
+                        highTemp.text = "High: ${currentWeather.main.tempMax.toInt()}°C"
+                    }
+                    if(units.pressure == "hPa") {
+                        pressure.text = "${currentWeather.main.pressure} hPa"
+                    }
+                    if(units.speed == "m/s") {
+                        windSpeed.text = "${currentWeather.wind.speed} m/s"
+                    }
+                    if(units.visibility == "km") {
+                        visibility.text = "${currentWeather.visibility / 1000} km"
+                    }
+                    if(units.seaLevel == "m") {
+                        seaLevel.text = "${currentWeather.main.seaLevel} m"
+                        groundLevel.text = "${currentWeather.main.grndLevel} m"
+                    }
+                }
+                setup5DayRecycler(fiveDayForecastMap)
+                setupHourlyRecycler(hourlyForecastList, getZoneId(weatherTimed.weatherResponse.city.timezone))
+            }
+        }
+    }
+
+    private fun setup5DayRecycler(weatherMap :Map<String, ForecastItem>){
+        val dailyForecastAdapter = DailyForecastAdapter(weatherMap)
+        val layoutMan = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
+        binding.dailyForecastRecycler.apply {
+            adapter = dailyForecastAdapter
+            layoutManager = layoutMan
+            setHasFixedSize(true)
+        }
+    }
+
+    private fun setupHourlyRecycler(weatherList: List<WeatherList>,zoneId : ZoneId){
+        val hourlyForecastAdapter = HourlyForecastAdapter(weatherList,zoneId)
+        val layoutMan = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        binding.hourlyForecastRecycler.apply {
+            adapter = hourlyForecastAdapter
+            layoutManager = layoutMan
+            setHasFixedSize(true)
+        }
+    }
+
+    private suspend fun setupLists(weatherTimed: WeatherTimed) : Pair<List<WeatherList>,Map<String, ForecastItem>> {
+        val zoneId = getZoneId(weatherTimed.weatherResponse.city.timezone)
+        val localTimeInZone = getLocalTimeFromZoneOffset(weatherTimed.weatherResponse.city.timezone)
         var hourlyForecastList : MutableList<WeatherList> = mutableListOf()
         var fiveDayForecastMap : MutableMap<String, ForecastItem> = mutableMapOf()
-
         val _fiveDayForecastMap : MutableMap<String, MutableList<WeatherList>> = mutableMapOf()
-
-        val currentTime = LocalDateTime.now()
-
         for(i in weatherTimed.weatherResponse.list.indices){
             if(weatherTimed.weatherResponse.list[i].dtTxt.isNotEmpty()){
                 val weatherList = weatherTimed.weatherResponse.list[i]
-                val dateTime = LocalDateTime.parse(weatherList.dtTxt, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
-                if(dateTime.isAfter(currentTime) && dateTime.isBefore(currentTime.plusDays(1))){
+                val dateTime = LocalDateTime.parse(
+                    weatherList.dtTxt,
+                    DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+                ).atZone(ZoneId.of("UTC")).withZoneSameInstant(zoneId).toLocalDateTime()
+
+                if(dateTime.isAfter(localTimeInZone) && dateTime.isBefore(localTimeInZone.plusDays(1))){
                     hourlyForecastList.add(weatherList)
                 }
-                else if(dateTime.isAfter(currentTime.plusDays(1)) && dateTime.isBefore(currentTime.plusDays(6))){
+                else if(dateTime.isAfter(localTimeInZone.plusDays(1)) && dateTime.isBefore(localTimeInZone.plusDays(6))){
                     val dayOfWeek = dateTime.dayOfWeek.getDisplayName(TextStyle.FULL, Locale.getDefault())
                     if(!_fiveDayForecastMap.containsKey(dayOfWeek)){
                         _fiveDayForecastMap[dayOfWeek] = mutableListOf()
                     }
-                    else{
-                        _fiveDayForecastMap[dayOfWeek]!!.add(weatherList)
-                    }
+                    _fiveDayForecastMap[dayOfWeek]!!.add(weatherList)
                 }
             }
         }
+
+        val forecastItem = calculateAverages(hourlyForecastList)
+        fiveDayForecastMap["Today"] = forecastItem
 
         for((day, weatherList) in _fiveDayForecastMap){
             val forecastItem = calculateAverages(weatherList)
@@ -264,6 +357,16 @@ class HomeFragment : Fragment() {
             ),
             weatherList = weatherList
         )
+    }
+
+    private fun getZoneId(timezoneOffsetSeconds: Long): ZoneId {
+        val offset = ZoneOffset.ofTotalSeconds(timezoneOffsetSeconds.toInt())
+        return ZoneId.ofOffset("UTC", offset)
+    }
+
+    private fun getLocalTimeFromZoneOffset(timeZoneOffsetSeconds : Long): LocalDateTime{
+        val offset = ZoneOffset.ofTotalSeconds(timeZoneOffsetSeconds.toInt())
+        return ZonedDateTime.now(offset).toLocalDateTime()
     }
 
 }

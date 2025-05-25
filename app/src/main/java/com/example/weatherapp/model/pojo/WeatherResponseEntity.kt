@@ -11,5 +11,6 @@ data class WeatherResponseEntity(
     val id: Int = 0,
 
     @TypeConverters(WeatherTypeConverters::class)
-    val response : WeatherTimed
+    val response : WeatherTimed,
+
 )

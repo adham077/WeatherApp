@@ -47,7 +47,7 @@
                     android:textSize="28sp"
                     android:textColor="@color/text_primary"
                     android:textStyle="bold"
-                    android:drawableStart="@android:drawable/ic_menu_report_image"
+                    android:drawableStart="@drawable/ic_city"
                     android:drawablePadding="8dp"
                     android:paddingStart="4dp"/>
 
@@ -159,7 +159,7 @@
                         android:text="Sea Level"
                         android:textSize="16sp"
                         android:textColor="@color/colorSecondary"
-                        android:drawableStart="@android:drawable/ic_menu_report_image"
+                        android:drawableStart="@drawable/ic_sea_level"
                         android:drawablePadding="8dp"
                         android:paddingStart="4dp"/>
 
@@ -195,7 +195,7 @@
                         android:text="Ground Level"
                         android:textSize="16sp"
                         android:textColor="@color/colorAccent"
-                        android:drawableStart="@android:drawable/ic_menu_report_image"
+                        android:drawableStart="@drawable/ic_ground_level"
                         android:drawablePadding="8dp"
                         android:paddingStart="4dp"/>
 
@@ -211,39 +211,85 @@
         </LinearLayout>
 
         <!-- Humidity Card -->
-        <androidx.cardview.widget.CardView
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="4dp"
+            android:orientation="horizontal"
             android:layout_marginTop="16dp"
-            app:cardBackgroundColor="#3300BCD4">
+            android:weightSum="2">
 
-            <LinearLayout
-                android:layout_width="match_parent"
+            <!-- Humidity Card -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="12dp">
+                android:layout_weight="1"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="4dp"
+                android:layout_marginEnd="8dp"
+                app:cardBackgroundColor="#3300BCD4">
 
-                <TextView
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Humidity"
-                    android:textSize="16sp"
-                    android:textColor="@color/colorAccent"
-                    android:drawableStart="@android:drawable/ic_menu_report_image"
-                    android:drawablePadding="8dp"
-                    android:paddingStart="4dp"/>
+                    android:orientation="vertical"
+                    android:padding="12dp">
 
-                <TextView
-                    android:id="@+id/humidity"
-                    android:layout_width="wrap_content"
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Humidity"
+                        android:textSize="16sp"
+                        android:textColor="@color/colorAccent"
+                        android:drawableStart="@drawable/ic_humidity"
+                        android:drawablePadding="8dp"
+                        android:paddingStart="4dp"/>
+
+                    <TextView
+                        android:id="@+id/humidity"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="65%"
+                        android:textSize="24sp"
+                        android:textColor="@color/colorSecondary"/>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Visibility Card -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="4dp"
+                android:layout_marginStart="8dp"
+                app:cardBackgroundColor="#3303A9F4">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="65%"
-                    android:textSize="24sp"
-                    android:textColor="@color/colorSecondary"/>
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
+                    android:orientation="vertical"
+                    android:padding="12dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Visibility"
+                        android:textSize="16sp"
+                        android:textColor="@color/colorSecondary"
+                        android:drawableStart="@drawable/ic_visibility"
+                        android:drawablePadding="8dp"
+                        android:paddingStart="4dp"/>
+
+                    <TextView
+                        android:id="@+id/visibility"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="10 km"
+                        android:textSize="24sp"
+                        android:textColor="@color/colorAccent"/>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+        </LinearLayout>
 
         <!-- Combined Sunrise/Sunset Card -->
         <androidx.cardview.widget.CardView
@@ -275,7 +321,7 @@
                         android:text="Sunrise"
                         android:textSize="16sp"
                         android:textColor="@color/colorSecondary"
-                        android:drawableStart="@android:drawable/ic_menu_report_image"
+                        android:drawableStart="@drawable/ic_sunrise"
                         android:drawablePadding="8dp"
                         android:paddingStart="4dp"/>
 
@@ -303,7 +349,7 @@
                         android:text="Sunset"
                         android:textSize="16sp"
                         android:textColor="@color/colorSecondary"
-                        android:drawableStart="@android:drawable/ic_menu_report_image"
+                        android:drawableStart="@drawable/ic_sunset"
                         android:drawablePadding="8dp"
                         android:paddingStart="4dp"/>
 
@@ -346,7 +392,7 @@
                         android:text="Wind"
                         android:textSize="16sp"
                         android:textColor="@color/colorSecondary"
-                        android:drawableStart="@android:drawable/ic_menu_report_image"
+                        android:drawableStart="@drawable/ic_wind"
                         android:drawablePadding="8dp"
                         android:paddingStart="4dp"/>
 
@@ -389,7 +435,7 @@
                         android:text="Pressure"
                         android:textSize="16sp"
                         android:textColor="@color/colorAccent"
-                        android:drawableStart="@android:drawable/ic_menu_report_image"
+                        android:drawableStart="@drawable/ic_pressure"
                         android:drawablePadding="8dp"
                         android:paddingStart="4dp"/>
 

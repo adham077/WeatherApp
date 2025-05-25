@@ -4,7 +4,7 @@ interface I_WeatherRemoteDataSource {
     suspend fun getWeather(
         lat: Double,
         lon: Double,
-        cnt: Int = 7,
+        cnt: Int = 120,
         units: String = "metric",
         lang: String = "en",
         appId: String
