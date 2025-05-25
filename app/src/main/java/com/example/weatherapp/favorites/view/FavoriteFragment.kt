@@ -6,10 +6,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.weatherapp.R
 import com.example.weatherapp.databinding.FragmentFavoriteBinding
 import com.example.weatherapp.favorites.viewmodel.FavoriteViewModel
 import com.example.weatherapp.favorites.viewmodel.FavoriteViewModelFactory
+import com.example.weatherapp.home.view.InitialSetupFragmentDirections
 import com.example.weatherapp.model.data.source.local.weather.WeatherLocalDataSource
 import com.example.weatherapp.model.data.source.remote.weather.WeatherRemoteDataSource
 import com.example.weatherapp.model.repository.weather.WeatherRepository
@@ -52,7 +55,7 @@ class FavoriteFragment : Fragment() {
             if(weatherResponse.operationStatus == FavoriteViewModel.OperationStatus.SUCCESS){
                 binding.favoritesRecycler.layoutManager = LinearLayoutManager(requireContext())
                 adapter = FavoritesAdapter(
-                    weatherResponse.favoriteLocationsWeather,
+                    weatherResponse.favoriteLocationsWeather?.subList(1, weatherResponse.favoriteLocationsWeather.size) ?: emptyList(),
                     onFavoriteItemDeleteCLicked = { itemId, itemIndex ->
                         viewModel.deleteLocationWeather(itemId)
                         viewModel.deleteLocationLiveData.observe(viewLifecycleOwner) {
@@ -65,12 +68,21 @@ class FavoriteFragment : Fragment() {
                         }
                     },
                     onFavoriteItemDetailsCLicked = {
-
+                        navigateToHomeFragment(
+                            0.0,
+                            0.0,
+                            it
+                        )
                     }
                 )
                 binding.favoritesRecycler.layoutManager = LinearLayoutManager(requireContext())
                 binding.favoritesRecycler.adapter = adapter
             }
         }
+    }
+
+    private fun navigateToHomeFragment(lat : Double, lon : Double,itemId : Int) {
+        val action = FavoriteFragmentDirections.actionFavoriteFragmentToHomeFragment("SavedWeatherFragment",lat.toFloat(),lon.toFloat(),itemId)
+        view?.findNavController()?.navigate(action)
     }
 }

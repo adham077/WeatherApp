@@ -55,6 +55,7 @@
                         android:textColor="@color/text_primary"/>
 
                     <androidx.appcompat.widget.SwitchCompat
+                        android:id="@+id/switch_gps"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         app:trackTint="@color/colorSecondary"
@@ -69,7 +70,6 @@
                     android:text="Choose from Map"
                     android:textColor="@color/colorAccent"
                     android:backgroundTint="#331A237E"
-                    android:enabled="false"
                     style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
@@ -123,6 +123,28 @@
                         android:backgroundTint="@color/colorAccent"/>
                 </LinearLayout>
 
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginTop="16dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Pressure Unit"
+                        android:textSize="16sp"
+                        android:textColor="@color/text_primary"/>
+
+                    <Spinner
+                        android:id="@+id/spinner_pressure_unit"
+                        android:layout_width="120dp"
+                        android:layout_height="48dp"
+                        android:backgroundTint="@color/colorAccent"/>
+                </LinearLayout>
+
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -145,6 +167,51 @@
                         android:layout_height="48dp"
                         android:backgroundTint="@color/colorAccent"/>
                 </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginTop="16dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Elevation Units"
+                        android:textSize="16sp"
+                        android:textColor="@color/text_primary"/>
+
+                    <Spinner
+                        android:id="@+id/spinner_elevation_unit"
+                        android:layout_width="120dp"
+                        android:layout_height="48dp"
+                        android:backgroundTint="@color/colorAccent"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginTop="16dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Visibility Units"
+                        android:textSize="16sp"
+                        android:textColor="@color/text_primary"/>
+
+                    <Spinner
+                        android:id="@+id/spinner_visibility_unit"
+                        android:layout_width="120dp"
+                        android:layout_height="48dp"
+                        android:backgroundTint="@color/colorAccent"/>
+                </LinearLayout>
+
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 

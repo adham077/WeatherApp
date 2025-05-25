@@ -28,6 +28,7 @@ import com.example.weatherapp.utils.TempAverages
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZoneOffset
@@ -69,7 +70,7 @@ class HomeFragment : Fragment() {
         /*SafeArgs Initialization*/
         lat = arguments?.getFloat("lat")
         long = arguments?.getFloat("long")
-        senderId = arguments?.getString("senderId")?: "InitialSetupFragment"
+        senderId = arguments?.getString("senderID")?: "defaultSender"
         itemId = arguments?.getInt("itemId") ?: 1
         fromGps = arguments?.getBoolean("fromGps") == true
         sharedPreferences = requireContext().getSharedPreferences("WeatherAppPrefs", 0)
@@ -106,6 +107,8 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        Log.i("HomeFragment", "onViewCreated: lat=$lat, long=$long, senderId=$senderId, itemId=$itemId, fromGps=$fromGps")
+
         if(senderId == "InitialSetupFragment"){
             Log.i("HomeFragment", "${lat} ${long}")
             fetchFromRemote(Pair(lat?: 0.0f,long?: 0.0f))
@@ -130,7 +133,75 @@ class HomeFragment : Fragment() {
                     }
                 }
             }
-       }
+        }
+        else if(senderId == "SavedWeatherFragment"){
+            Log.i("HomeFragment", "Favorite: itemId=$itemId, lat=$lat, long=$long")
+            var hasHandledSavedWeather = false
+            fetchFromLocal(itemId)
+            fetchedFromLocal.observe(viewLifecycleOwner) {
+                if(it && !hasHandledSavedWeather){
+                    hasHandledSavedWeather = true
+                    val lat = weatherTimed.weatherResponse.city.coord.lat.toFloat()
+                    val long = weatherTimed.weatherResponse.city.coord.lon.toFloat()
+                    fetchFromRemote(Pair(lat, long))
+                    updatedFromRemote.observe(viewLifecycleOwner) { result ->
+                        if(result){
+                            updateWeatherData(
+                                itemId,
+                                weatherTimed
+                            )
+                            setupViewOnline(units, weatherTimed, currentWeather)
+                        }
+                        else{
+                            setupOfflineView(units, weatherTimed)
+                        }
+                    }
+                }
+                else if(!it){
+                    Toast.makeText(
+                        requireContext(),
+                        "Failed to fetch saved weather data",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
+        else{
+            lat = sharedPreferences.getFloat("userLat", 0.0f)
+            long = sharedPreferences.getFloat("userLon", 0.0f)
+            Log.i("HomeFragment", "User Location: lat=$lat, long=$long")
+            if(lat != null && long != null){
+                fetchFromRemote(Pair(lat!!, long!!))
+                updatedFromRemote.observe(viewLifecycleOwner) { result ->
+                    if(result){
+                        updateWeatherData(1, weatherTimed)
+                        setupViewOnline(units, weatherTimed, currentWeather)
+                    }
+                    else{
+                        fetchFromLocal(1)
+                        fetchedFromLocal.observe(viewLifecycleOwner) {
+                            if(it){
+                                setupOfflineView(units, weatherTimed)
+                            }
+                            else{
+                                Toast.makeText(
+                                    requireContext(),
+                                    "Failed to fetch weather data",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        }
+                    }
+                }
+            }
+            else{
+                Toast.makeText(
+                    requireContext(),
+                    "Location not found",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
 
     }
 
@@ -216,8 +287,20 @@ class HomeFragment : Fragment() {
             val currentVisibility = hourlyForecastList.get(0).visibility
             val currentSeaLevel = hourlyForecastList.get(0).main.seaLevel
             val currentGroundLevel = hourlyForecastList.get(0).main.grndLevel
+            val zoneId = getZoneId(weatherTimed.weatherResponse.city.timezone)
+            val sunsetTime_ = Instant.ofEpochSecond(weatherTimed.weatherResponse.city.sunset)
+                .atZone(ZoneId.of("UTC"))
+                .withZoneSameInstant(zoneId)
+                .toLocalDateTime()
+
+            val sunriseTime_ = Instant.ofEpochSecond(weatherTimed.weatherResponse.city.sunrise)
+                .atZone(ZoneId.of("UTC"))
+                .withZoneSameInstant(zoneId)
+                .toLocalDateTime()
             withContext(Dispatchers.Main) {
                 binding.apply {
+                    sunsetTime.text = sunsetTime_.format(DateTimeFormatter.ofPattern("HH:mm"))
+                    sunriseTime.text = sunriseTime_.format(DateTimeFormatter.ofPattern("HH:mm"))
                     lastUpdate.text = "Last Update: ${weatherTimed.localDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))}"
                     cityName.text = "${weatherTimed.weatherResponse.city.name}, ${weatherTimed.weatherResponse.city.country}"
                     if(units.temperature == "Celsius") {
@@ -249,10 +332,24 @@ class HomeFragment : Fragment() {
     private fun setupViewOnline(units: Units,weatherTimed: WeatherTimed,currentWeather: CurrentWeatherResponse){
         lifecycleScope.launch(Dispatchers.Default) {
             val (hourlyForecastList, fiveDayForecastMap) = setupLists(weatherTimed)
+
+            val zoneID = getZoneId(weatherTimed.weatherResponse.city.timezone)
+            val sunsetTime_ = Instant.ofEpochSecond(weatherTimed.weatherResponse.city.sunset)
+                .atZone(ZoneId.of("UTC"))
+                .withZoneSameInstant(zoneID)
+                .toLocalDateTime()
+
+            val sunriseTime_ = Instant.ofEpochSecond(weatherTimed.weatherResponse.city.sunrise)
+                .atZone(ZoneId.of("UTC"))
+                .withZoneSameInstant(zoneID)
+                .toLocalDateTime()
+
             withContext(Dispatchers.Main) {
                 binding.apply {
                     lastUpdate.text = "Last Update: ${LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))}"
                     cityName.text = "${currentWeather.name}, ${currentWeather.sys.country}"
+                    sunsetTime.text = sunsetTime_.format(DateTimeFormatter.ofPattern("HH:mm"))
+                    sunriseTime.text = sunriseTime_.format(DateTimeFormatter.ofPattern("HH:mm"))
                     if(units.temperature == "Celsius") {
                         currentTemperature.text = "${currentWeather.main.temp.toInt()}°C"
                         lowTemp.text = "Low: ${currentWeather.main.tempMin.toInt()}°C"
@@ -369,4 +466,12 @@ class HomeFragment : Fragment() {
         return ZonedDateTime.now(offset).toLocalDateTime()
     }
 
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        binding.apply {
+            hourlyForecastRecycler.adapter = null
+            dailyForecastRecycler.adapter = null
+        }
+    }
 }

@@ -73,7 +73,7 @@ class InitialSetupFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        sharedPreferences = requireContext().getSharedPreferences("weather_prefs", Context.MODE_PRIVATE)
+        sharedPreferences = requireContext().getSharedPreferences("WeatherAppPrefs", Context.MODE_PRIVATE)
         val editor = sharedPreferences.edit()
 
         if(sharedPreferences.getBoolean("isInitRun", false)){
@@ -128,8 +128,8 @@ class InitialSetupFragment : Fragment() {
                 editor.apply()
                 getLocation { success, lat, long ->
                     if(success){
-                        editor.putFloat("latVal", lat.toFloat())
-                        editor.putFloat("lonVal", long.toFloat())
+                        editor.putFloat("userLat", lat.toFloat())
+                        editor.putFloat("userLat", long.toFloat())
                         editor.apply()
                         navigateToHomeFragment(true, lat, long)
                     }

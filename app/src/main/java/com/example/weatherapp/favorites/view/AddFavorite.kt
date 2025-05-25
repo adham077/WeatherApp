@@ -40,7 +40,9 @@ import org.osmdroid.views.overlay.Overlay
 private typealias locationRes_t = (success: Boolean,lat: Double,long: Double) -> Unit
 
 class AddFavorite : Fragment() {
-    private lateinit var mapView: MapView
+    private  val mapView: MapView by lazy {
+        binding.mapView
+    }
     private lateinit var mapController: MapController
     private lateinit var binding : FragmentAddFavoriteBinding
     private var selectedLocation: GeoPoint? = null
@@ -113,52 +115,45 @@ class AddFavorite : Fragment() {
 
     }
 
-    private fun setupMap(lat : Double = 29.991385 , long : Double = 31.268972) {
+    private fun setupMap(lat: Double = 29.991385, long: Double = 31.268972) {
+        if (::mapController.isInitialized) return
+
         Configuration.getInstance().userAgentValue = requireContext().packageName
-        mapView = binding.mapView
-        mapController =  mapView.controller as MapController
-        mapView.setMultiTouchControls(true)
+        mapController = mapView.controller as MapController
         mapView.setTileSource(TileSourceFactory.MAPNIK)
         mapController.setZoom(11.5)
-        val startPoint = GeoPoint(lat, long)
-        mapController.setCenter(startPoint)
+        mapController.setCenter(GeoPoint(lat, long))
 
-        val longPressOverlay = object : Overlay() {
-            override fun onLongPress(event: MotionEvent, mapView: MapView?): Boolean {
-                val point = mapView?.projection?.fromPixels(event.x.toInt(), event.y.toInt()) as GeoPoint
-                selectedLocation = point
-                val overlays = mapView.overlays.toMutableList().apply {
-                    removeAll { it is Marker }
-                }
-                val marker = Marker(mapView).apply {
-                    position = point
+        if (mapView.overlays.none { it is LongPressOverlay }) {
+            mapView.overlays.add(LongPressOverlay())
+        }
+    }
+
+    inner class LongPressOverlay : Overlay() {
+        override fun onLongPress(event: MotionEvent, mapView: MapView?): Boolean {
+            val point = mapView?.projection?.fromPixels(event.x.toInt(), event.y.toInt()) as? GeoPoint
+            point?.let {
+                selectedLocation = it
+                mapView.overlays
+                    .filterIsInstance<Marker>()
+                    .forEach { mapView.overlays.remove(it) }
+
+                Marker(mapView).apply {
+                    position = it
                     setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+                    mapView.overlays.add(this)
                 }
-                overlays.add(marker)
-                mapView.overlays.clear()
-                mapView.overlays.addAll(overlays)
-                mapController.animateTo(point)
-                mapView.invalidate()
-                return true
+                mapController.animateTo(it)
             }
+            return true
         }
 
-        mapView.overlays.add(longPressOverlay)
     }
 
     private fun searchLocation(){
 
     }
 
-    override fun onResume() {
-        super.onResume()
-        mapView.onResume()
-    }
-
-    override fun onPause() {
-        super.onPause()
-        mapView.onPause()
-    }
 
     private  fun checkPermissions() : Boolean {
         var result = false
@@ -177,19 +172,16 @@ class AddFavorite : Fragment() {
 
 
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
-    private fun getLocation(callBack : locationRes_t?) {
-        val locationRequest = LocationRequest.Builder(0).apply {
-            setPriority(Priority.PRIORITY_HIGH_ACCURACY)
-        }.build()
-
+    private fun getLocation(callBack: locationRes_t?) {
+        val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 10000).build()
         val locationCallback = object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult) {
-                super.onLocationResult(locationResult)
+                fusedLocationProviderClient.removeLocationUpdates(this)
                 val location = locationResult.lastLocation
                 if (location != null) {
-                    if(callBack!=null)callBack(true, location.latitude, location.longitude)
+                    callBack?.invoke(true, location.latitude, location.longitude)
                 } else {
-                    if(callBack!=null)callBack(false, 0.0, 0.0)
+                    callBack?.invoke(false, 0.0, 0.0)
                 }
             }
         }
@@ -197,11 +189,19 @@ class AddFavorite : Fragment() {
         fusedLocationProviderClient.requestLocationUpdates(
             locationRequest,
             locationCallback,
-            Looper.myLooper()
+            Looper.getMainLooper()
         )
-
     }
 
+    override fun onResume() {
+        super.onResume()
+        mapView.onResume()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        mapView.onPause()
+    }
 
 
 }

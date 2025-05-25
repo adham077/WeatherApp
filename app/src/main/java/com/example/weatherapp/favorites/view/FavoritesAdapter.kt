@@ -21,11 +21,21 @@ class FavoritesAdapter(
         notifyDataSetChanged()
     }
 
-    fun removeItem(itemId: Int, itemIndex: Int) {
-        if(itemIndex >= 0 && itemIndex < favoritesWeatherList!!.size) {
-            favoritesWeatherList = favoritesWeatherList?.toMutableList()
-            (favoritesWeatherList as MutableList).removeAt(itemIndex)
+    fun removeItem(itemId: Int, itemIndex: Int)  {
+        if (favoritesWeatherList == null || itemIndex < 0 || itemIndex >= favoritesWeatherList!!.size) {
+            return
         }
+        if (favoritesWeatherList!![itemIndex].id != itemId) {
+            return
+        }
+        if(itemIndex < 0 || itemIndex >= favoritesWeatherList!!.size) {
+            return
+        }
+        val mutableList = favoritesWeatherList?.toMutableList() ?: return
+        mutableList.removeAt(itemIndex)
+        favoritesWeatherList = mutableList
+        notifyItemRangeChanged(itemIndex, favoritesWeatherList!!.size - itemIndex)
+        notifyItemRemoved(itemIndex)
     }
 
     fun addItem(item: WeatherResponseEntity) {
@@ -46,6 +56,7 @@ class FavoritesAdapter(
         holder: FavoriteViewHolder,
         position: Int
     ) {
+
         holder.binding.btnRemove.setOnClickListener {
             onFavoriteItemDeleteCLicked(favoritesWeatherList!!.get(position).id,position)
         }

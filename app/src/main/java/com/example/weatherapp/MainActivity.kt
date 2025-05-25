@@ -6,6 +6,7 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.NavController
+import androidx.navigation.NavOptions
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
@@ -43,6 +44,44 @@ class MainActivity : AppCompatActivity() {
 
         setupActionBarWithNavController(navController, appBarConfiguration)
         binding.navigationView.setupWithNavController(navController)
+
+        binding.navigationView.setNavigationItemSelectedListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.favoriteFragment -> {
+                    navController.navigate(R.id.favoriteFragment, null, NavOptions.Builder()
+                        .setPopUpTo(R.id.nav_graph, false)
+                        .build())
+                    true
+                }
+                R.id.homeFragment -> {
+                    navController.navigate(R.id.homeFragment, null, NavOptions.Builder()
+                        .setPopUpTo(R.id.nav_graph, false)
+                        .build())
+                    true
+                }
+                R.id.settingsFragment -> {
+                    navController.navigate(R.id.settingsFragment, null, NavOptions.Builder()
+                        .setPopUpTo(R.id.nav_graph, false)
+                        .build())
+                    true
+                }
+                R.id.addFavoriteFragment -> {
+                    navController.navigate(R.id.addFavoriteFragment, null, NavOptions.Builder()
+                        .setPopUpTo(R.id.nav_graph, false)
+                        .build())
+                    true
+                }
+                R.id.alertsFragment -> {
+                    navController.navigate(R.id.alertsFragment, null, NavOptions.Builder()
+                        .setPopUpTo(R.id.nav_graph, false)
+                        .build())
+                    true
+                }
+                else -> false
+            }.also {
+                if (it) drawerLayout.closeDrawers()
+            }
+        }
 
     }
 
