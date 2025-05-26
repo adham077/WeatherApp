@@ -25,6 +25,13 @@ import com.example.weatherapp.model.repository.weather.WeatherRepository
 import com.example.weatherapp.model.repository.weather.WeatherRepository.Source
 import com.example.weatherapp.utils.ForecastItem
 import com.example.weatherapp.utils.TempAverages
+import com.example.weatherapp.utils.convertCelsiusToFahrenheit
+import com.example.weatherapp.utils.convertCelsiusToKelvin
+import com.example.weatherapp.utils.convertHpaToInHg
+import com.example.weatherapp.utils.convertKmToMiles
+import com.example.weatherapp.utils.convertMeterToFeet
+import com.example.weatherapp.utils.convertMetertkiloM
+import com.example.weatherapp.utils.covertHpaToMmHg
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -75,14 +82,6 @@ class HomeFragment : Fragment() {
         fromGps = arguments?.getBoolean("fromGps") == true
         sharedPreferences = requireContext().getSharedPreferences("WeatherAppPrefs", 0)
 
-        /*Units Initialization*/
-        units = Units(
-            temperature = sharedPreferences.getString("temperatureUnit", "Celsius") ?: "Celsius",
-            speed = sharedPreferences.getString("speedUnit", "m/s") ?: "m/s",
-            pressure = sharedPreferences.getString("pressureUnit", "hPa") ?: "hPa",
-            visibility = sharedPreferences.getString("visibilityUnit", "km") ?: "km",
-            seaLevel = sharedPreferences.getString("seaLevelUnit", "m") ?: "m",
-        )
 
         /*ViewModel Initialization*/
         val viewModelFactory = HomeViewModelFactory(
@@ -106,6 +105,17 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        /*Units Initialization*/
+        units = Units(
+            temperature = sharedPreferences.getString("tempUnit", "Celsius") ?: "Celsius",
+            speed = sharedPreferences.getString("speedUnit", "m/s") ?: "m/s",
+            pressure = sharedPreferences.getString("pressureUnit", "hPa") ?: "hPa",
+            visibility = sharedPreferences.getString("visibilityUnit", "km") ?: "km",
+            seaLevel = sharedPreferences.getString("elevationUnit", "meters") ?: "meters",
+        )
+
+        Log.i("HomeFragment", "onViewCreated: temperatureUnit=${units.temperature}, speedUnit=${units.speed}, pressureUnit=${units.pressure}, visibilityUnit=${units.visibility}, seaLevelUnit=${units.seaLevel}")
 
         Log.i("HomeFragment", "onViewCreated: lat=$lat, long=$long, senderId=$senderId, itemId=$itemId, fromGps=$fromGps")
 
@@ -163,6 +173,29 @@ class HomeFragment : Fragment() {
                         "Failed to fetch saved weather data",
                         Toast.LENGTH_SHORT
                     ).show()
+                }
+            }
+        }
+        else if(senderId == "AlertsReceiver"){
+            viewModel.getWeatherAlertById(itemId)
+            viewModel.weatherAlertResult.observe(viewLifecycleOwner) {result->
+                if(result!= null){
+                    val lat = result.response.weatherResponse.city.coord.lat
+                    val long = result.response.weatherResponse.city.coord.lon
+                    viewModel.getCurrentWeather(WeatherRepository.Coordinates(lat,long))
+                    viewModel.currentWeatherResult.observe(viewLifecycleOwner) { result->
+                        if(result!=null){
+                            currentWeather = result.currentWeatherResponse!!
+                        }
+                    }
+
+                    viewModel.getWeather(Source.REMOTE, WeatherRepository.Coordinates(lat, long))
+                    viewModel.weatherResult.observe(viewLifecycleOwner) { result->
+                        if(result.status == WeatherRepository.Status.SUCCESS){
+                            weatherTimed = result.weatherTimed!!
+                        }
+                    }
+                    setupViewOnline(units, weatherTimed, currentWeather)
                 }
             }
         }
@@ -308,26 +341,62 @@ class HomeFragment : Fragment() {
                         lowTemp.text = "Low: ${minTemp.toInt()}°C"
                         highTemp.text = "High: ${maxTemp.toInt()}°C"
                     }
+                    else if(units.temperature == "Fahrenheit") {
+                        currentTemperature.text = "${convertCelsiusToFahrenheit(currentTemp).toInt()}°F"
+                        lowTemp.text = "Low: ${convertCelsiusToFahrenheit(minTemp).toInt()}°F"
+                        highTemp.text = "High: ${convertCelsiusToFahrenheit(maxTemp).toInt()}°F"
+                    }
+                    else{
+                        currentTemperature.text = "${convertCelsiusToKelvin(currentTemp).toInt()} K"
+                        lowTemp.text = "Low: ${convertCelsiusToKelvin(minTemp).toInt()} K"
+                        highTemp.text = "High: ${convertCelsiusToKelvin(maxTemp).toInt()} K"
+                    }
+
                     if(units.pressure == "hPa") {
                         pressure.text = "$currentPressure hPa"
                     }
+                    else if(units.pressure == "mmHg") {
+                        pressure.text = "${covertHpaToMmHg(currentPressure).toInt()} mmHg"
+                    }
+                    else{
+                        pressure.text = "${convertHpaToInHg(currentPressure).toInt()} inHg"
+                    }
+
                     if(units.speed == "m/s") {
                         windSpeed.text = "${weatherTimed.weatherResponse.list[0].wind.speed} m/s"
                     }
+                    else if(units.speed == "km/h") {
+                        windSpeed.text = "${(weatherTimed.weatherResponse.list[0].wind.speed * 3.6).toInt()} km/h"
+                    }
+                    else if(units.speed == "mph") {
+                        windSpeed.text = "${(weatherTimed.weatherResponse.list[0].wind.speed * 2.23694).toInt()} mph"
+                    }
+
                     if(units.visibility == "km") {
                         visibility.text = "${currentVisibility / 1000} km"
                     }
-                    if(units.seaLevel == "m") {
+                    else if(units.visibility == "miles") {
+                        visibility.text = "${convertKmToMiles(currentVisibility / 1000.0).toInt()} miles"
+                    }
+                    else {
+                        visibility.text = "${currentVisibility.toInt()} m"
+                    }
+
+                    if(units.seaLevel == "meters") {
                         seaLevel.text = "${currentSeaLevel} m"
                         groundLevel.text = "${currentGroundLevel} m"
                     }
+                    else{
+                        seaLevel.text = "${convertMeterToFeet(currentSeaLevel).toInt()} feet"
+                        groundLevel.text = "${convertMeterToFeet(currentGroundLevel).toInt()} feet"
+                    }
+
                     setup5DayRecycler(fiveDayForecastMap)
                     setupHourlyRecycler(hourlyForecastList, getZoneId(weatherTimed.weatherResponse.city.timezone))
                 }
             }
         }
     }
-
 
     private fun setupViewOnline(units: Units,weatherTimed: WeatherTimed,currentWeather: CurrentWeatherResponse){
         lifecycleScope.launch(Dispatchers.Default) {
@@ -355,18 +424,51 @@ class HomeFragment : Fragment() {
                         lowTemp.text = "Low: ${currentWeather.main.tempMin.toInt()}°C"
                         highTemp.text = "High: ${currentWeather.main.tempMax.toInt()}°C"
                     }
+                    else if(units.temperature == "Fahrenheit") {
+                        currentTemperature.text = "${convertCelsiusToFahrenheit(currentWeather.main.temp).toInt()}°F"
+                        lowTemp.text = "Low: ${convertCelsiusToFahrenheit(currentWeather.main.tempMin).toInt()}°F"
+                        highTemp.text = "High: ${convertCelsiusToFahrenheit(currentWeather.main.tempMax).toInt()}°F"
+                    }
+                    else{
+                        currentTemperature.text = "${convertCelsiusToKelvin(currentWeather.main.temp).toInt()} K"
+                        lowTemp.text = "Low: ${convertCelsiusToKelvin(currentWeather.main.tempMin).toInt()} K"
+                        highTemp.text = "High: ${convertCelsiusToKelvin(currentWeather.main.tempMax).toInt()} K"
+                    }
+
                     if(units.pressure == "hPa") {
                         pressure.text = "${currentWeather.main.pressure} hPa"
                     }
+                    else if(units.pressure == "mmHg") {
+                        pressure.text = "${covertHpaToMmHg(currentWeather.main.pressure).toInt()} mmHg"
+                    }
+                    else{
+                        pressure.text = "${convertHpaToInHg(currentWeather.main.pressure).toInt()} inHg"
+                    }
+
                     if(units.speed == "m/s") {
-                        windSpeed.text = "${currentWeather.wind.speed} m/s"
+                        windSpeed.text = "${currentWeather.wind.speed.toInt()} m/s"
                     }
                     if(units.visibility == "km") {
                         visibility.text = "${currentWeather.visibility / 1000} km"
                     }
+                    else if(units.visibility == "miles") {
+                        visibility.text = "${convertKmToMiles(currentWeather.visibility / 1000.0).toInt()} miles"
+                    }
+                    else {
+                        visibility.text = "${currentWeather.visibility.toInt()} m"
+                    }
+
                     if(units.seaLevel == "m") {
-                        seaLevel.text = "${currentWeather.main.seaLevel} m"
-                        groundLevel.text = "${currentWeather.main.grndLevel} m"
+                        seaLevel.text = "${currentWeather.main.seaLevel.toInt()} m"
+                        groundLevel.text = "${currentWeather.main.grndLevel.toInt()} m"
+                    }
+                    else if(units.seaLevel == "km") {
+                        seaLevel.text = "${convertMetertkiloM(currentWeather.main.seaLevel).toInt()} km"
+                        groundLevel.text = "${convertMetertkiloM(currentWeather.main.grndLevel).toInt()} km"
+                    }
+                    else{
+                        seaLevel.text = "${currentWeather.main.seaLevel.toInt()} m"
+                        groundLevel.text = "${currentWeather.main.grndLevel.toInt()} m"
                     }
                 }
                 setup5DayRecycler(fiveDayForecastMap)

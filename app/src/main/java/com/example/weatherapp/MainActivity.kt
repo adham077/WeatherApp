@@ -1,5 +1,6 @@
 package com.example.weatherapp
 
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import androidx.annotation.RequiresApi
@@ -7,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.NavController
 import androidx.navigation.NavOptions
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
@@ -37,6 +39,7 @@ class MainActivity : AppCompatActivity() {
                 R.id.homeFragment,
                 R.id.favoriteFragment,
                 R.id.settingsFragment,
+                R.id.alertsFragment,
                 R.id.addFavoriteFragment
             ),
             drawerLayout
@@ -80,6 +83,15 @@ class MainActivity : AppCompatActivity() {
                 else -> false
             }.also {
                 if (it) drawerLayout.closeDrawers()
+            }
+        }
+
+        if(intent!=null){
+            val senderID = intent.getStringExtra("SENDER_ID")
+            val itemId = intent.getIntExtra("ITEM_ID", 0)
+            if (senderID != null && senderID == "AlertsReceiver") {
+                val directions = NavGraphDirections.actionGlobalToHome(itemId = itemId, senderID = senderID)
+                navController.navigate(directions)
             }
         }
 

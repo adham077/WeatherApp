@@ -42,6 +42,10 @@ data class ForecastItem(
     var weatherList: List<WeatherList>? = null
 )
 
+fun convertCelsiusToKelvin(celsius: Double): Double {
+    return celsius + 273.15
+}
+
 fun convertKelvinToCelsius(kelvin: Double): Double {
     return kelvin - 273.15
 }
@@ -56,4 +60,24 @@ fun convertCelsiusToFahrenheit(celsius: Double): Double {
 
 fun convertFahrenheitToCelsius(fahrenheit: Double): Double {
     return (fahrenheit - 32) * 5 / 9
+}
+
+fun covertHpaToMmHg(hpa: Long): Double {
+    return hpa * 0.750062
+}
+
+fun convertHpaToInHg(hpa: Long): Double {
+    return hpa * 0.02953
+}
+
+fun convertKmToMiles(km: Double): Double {
+    return km * 0.621371
+}
+
+fun convertMetertkiloM(meter: Long): Double {
+    return meter / 1000.0
+}
+
+fun convertMeterToFeet(meter: Long): Double {
+    return meter * 3.28084
 }

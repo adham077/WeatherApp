@@ -105,6 +105,11 @@ dependencies {
     /*Gauge View*/
     implementation("com.github.anastr:speedviewlib:1.6.0")
 
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
+
+
+    /*WorkManager*/
+    implementation("androidx.work:work-runtime-ktx:2.10.1")
 
     configurations.all {
         resolutionStrategy {

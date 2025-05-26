@@ -5,6 +5,21 @@
     android:id="@+id/nav_graph"
     app:startDestination="@id/initialSetupFragment">
 
+    <action
+        android:id="@+id/action_global_to_home"
+        app:destination="@id/homeFragment"
+        app:popUpTo="@id/nav_graph"
+        app:popUpToInclusive="false">
+        <argument
+            android:name="itemId"
+            app:argType="integer"
+            android:defaultValue="0"/>
+        <argument
+            android:name="senderID"
+            app:argType="string"
+            android:defaultValue="default_sender_id" />
+    </action>
+
     <fragment
         android:id="@+id/initialSetupFragment"
         android:name="com.example.weatherapp.home.view.InitialSetupFragment"

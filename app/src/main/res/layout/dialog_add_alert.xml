@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/gradient_background"
+    android:padding="16dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Set Alert Location"
+        android:textSize="20sp"
+        android:textColor="@color/colorSecondary"
+        android:layout_marginBottom="16dp"/>
+
+    <org.osmdroid.views.MapView
+        android:id="@+id/mapView"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:layout_marginBottom="16dp"/>
+
+    <!-- Replace the old Button with this -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:startIconTint="@color/colorAccent"
+        app:boxBackgroundColor="#4D1A237E"
+        app:boxCornerRadiusTopStart="12dp"
+        app:boxCornerRadiusTopEnd="12dp"
+        app:boxCornerRadiusBottomEnd="12dp"
+        app:boxCornerRadiusBottomStart="12dp"
+        app:startIconDrawable="@drawable/ic_date_time"
+        android:layout_marginBottom="16dp">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etDateTime"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Select Date and Time"
+            android:textColor="@color/text_primary"
+            android:textColorHint="@color/text_secondary"
+            android:inputType="none"
+            android:focusable="false"
+            android:clickable="true"/>
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/tvSelectedDateTime"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Not set"
+            android:textSize="16sp"
+            android:textColor="@color/text_secondary"/>
+
+        <Button
+            android:id="@+id/btnSaveAlert"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:text="SAVE"
+            android:textColor="@color/text_primary"
+            android:backgroundTint="@color/colorAccent"
+            app:cornerRadius="12dp"
+            android:paddingStart="24dp"
+            android:paddingEnd="24dp"/>
+
+    </LinearLayout>
+
+</LinearLayout>

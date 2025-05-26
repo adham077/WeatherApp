@@ -178,7 +178,7 @@ class SettingsFragment : Fragment() {
             }
 
             override fun onNothingSelected(parent: AdapterView<*>) {
-                // No action needed
+                /*Do nothing*/
             }
         }
 
@@ -221,6 +221,29 @@ class SettingsFragment : Fragment() {
             ) {
                 val selectedUnit = visiblityUnits[position]
                 sharedPreferences.edit().putString("visibilityUnit", selectedUnit).apply()
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+
+            }
+        }
+
+        val elevationUnits = listOf("meters", "feet")
+        val elevationUnitAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, elevationUnits)
+        elevationUnitAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        binding.spinnerElevationUnit.adapter = elevationUnitAdapter
+        binding.spinnerElevationUnit.setSelection(
+            elevationUnits.indexOf(sharedPreferences.getString("elevationUnit", "meters"))
+        )
+        binding.spinnerElevationUnit.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                parent: AdapterView<*>,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                val selectedUnit = elevationUnits[position]
+                sharedPreferences.edit().putString("elevationUnit", selectedUnit).apply()
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {

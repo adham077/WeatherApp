@@ -7,6 +7,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.example.weatherapp.model.pojo.WeatherAlertEntity
 import com.example.weatherapp.model.pojo.WeatherResponseEntity
 import com.example.weatherapp.model.pojo.WeatherTimed
 import com.example.weatherapp.model.repository.weather.WeatherRepository
@@ -44,6 +45,12 @@ class HomeViewModel(private val repository: WeatherRepository) : ViewModel() {
 
     private val _insertWeatherStatus = MutableLiveData<Boolean>()
     val insertWeatherStatus: LiveData<Boolean> = _insertWeatherStatus
+
+    private val _weatherAlertResult = MutableLiveData<WeatherAlertEntity?>()
+    val weatherAlertResult: LiveData<WeatherAlertEntity?> = _weatherAlertResult
+
+    private val _deletedWeatherAlertStatus = MutableLiveData<Boolean>()
+    val deletedWeatherAlertStatus: LiveData<Boolean> = _deletedWeatherAlertStatus
 
     fun getCurrentWeather(coordinates: WeatherRepository.Coordinates) {
         viewModelScope.launch {
@@ -112,6 +119,31 @@ class HomeViewModel(private val repository: WeatherRepository) : ViewModel() {
                         _updateWeatherStatus.postValue(true)
                     } else {
                         _updateWeatherStatus.postValue(false)
+                    }
+                }
+            }
+        }
+    }
+
+    fun getWeatherAlertById(id: Int) {
+        viewModelScope.launch {
+            repository.getWeatherAlertById(id).let { result ->
+                withContext(Dispatchers.Main) {
+                    _weatherAlertResult.postValue(result)
+                }
+            }
+        }
+    }
+
+    fun deleteWeatherAlertById(id: Int){
+        viewModelScope.launch {
+            repository.deleteWeatherAlertById(id).let { result->
+                withContext(Dispatchers.Main) {
+                    if(result>=0){
+                        _deletedWeatherAlertStatus.postValue(true)
+                    }
+                    else{
+                        _deletedWeatherAlertStatus.postValue(false)
                     }
                 }
             }

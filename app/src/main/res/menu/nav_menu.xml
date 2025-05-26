@@ -12,6 +12,11 @@
             android:title="Favorites"/>
 
         <item
+            android:id="@+id/alertsFragment"
+            android:icon="@drawable/ic_gps"
+            android:title="Alerts"/>
+
+        <item
             android:id="@+id/addFavoriteFragment"
             android:icon="@drawable/ic_add"
             android:title="Add Favorite"/>

@@ -8,6 +8,7 @@ import com.example.weatherapp.model.data.source.local.weather.I_WeatherLocalData
 import com.example.weatherapp.model.data.source.remote.weather.I_WeatherRemoteDataSource
 import com.example.weatherapp.model.data.source.remote.weather.WeatherRemoteDataSource
 import com.example.weatherapp.model.pojo.CurrentWeatherResponse
+import com.example.weatherapp.model.pojo.WeatherAlertEntity
 import com.example.weatherapp.model.pojo.WeatherResponseEntity
 import com.example.weatherapp.model.pojo.WeatherTimed
 import kotlinx.coroutines.Dispatchers
@@ -198,5 +199,33 @@ class WeatherRepository private constructor(private val weatherLocalDataSource: 
 
     suspend fun getWeatherById(id: Int): WeatherResponseEntity? = withContext(Dispatchers.IO) {
         weatherLocalDataSource.getWeatherById(id)
+    }
+
+    suspend fun getWeatherAlertById(id: Int): WeatherAlertEntity? = withContext(Dispatchers.IO) {
+        weatherLocalDataSource.getWeatherAlertById(id)
+    }
+
+    suspend fun getAllWeatherAlerts(): List<WeatherAlertEntity>? = withContext(Dispatchers.IO) {
+        weatherLocalDataSource.getAllWeatherAlerts()
+    }
+
+    suspend fun insertWeatherAlert(weatherAlertEntity: WeatherAlertEntity): Long = withContext(Dispatchers.IO) {
+        weatherLocalDataSource.insertWeatherAlert(weatherAlertEntity)
+    }
+
+    suspend fun updateWeatherAlert(weatherAlertEntity: WeatherAlertEntity): Int = withContext(Dispatchers.IO) {
+        weatherLocalDataSource.updateWeatherAlert(weatherAlertEntity)
+    }
+
+    suspend fun deleteWeatherAlert(weatherAlertEntity: WeatherAlertEntity): Int = withContext(Dispatchers.IO) {
+        weatherLocalDataSource.deleteWeatherAlert(weatherAlertEntity)
+    }
+
+    suspend fun deleteWeatherAlertById(id: Int): Int = withContext(Dispatchers.IO) {
+        weatherLocalDataSource.deleteWeatherAlertById(id)
+    }
+
+    suspend fun deleteAllWeatherAlerts(): Int = withContext(Dispatchers.IO) {
+        weatherLocalDataSource.deleteAllWeatherAlerts()
     }
 }

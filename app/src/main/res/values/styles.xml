@@ -19,4 +19,17 @@
         <item name="titleTextColor">@color/text_primary</item>
         <item name="subtitleTextColor">@color/text_secondary</item>
     </style>
+
+    <!-- styles.xml -->
+    <style name="ThemeOverlay.App.DatePicker" parent="ThemeOverlay.MaterialComponents.MaterialCalendar">
+        <item name="colorPrimary">@color/colorAccent</item>
+        <item name="colorOnPrimary">@color/text_primary</item>
+        <item name="colorSurface">@color/colorPrimary</item>
+    </style>
+
+    <style name="ThemeOverlay.App.TimePicker" parent="ThemeOverlay.MaterialComponents.TimePicker">
+        <item name="colorPrimary">@color/colorAccent</item>
+        <item name="android:textColorPrimary">@color/text_primary</item>
+        <item name="android:colorBackground">@color/colorPrimary</item>
+    </style>
 </resources>
