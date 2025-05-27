@@ -69,4 +69,8 @@ class WeatherLocalDataSource(private val context: Context) : I_WeatherLocalDataS
     override suspend fun deleteWeatherAlertById(id: Int): Int {
         return weatherAlertsDao.deleteWeatherById(id)
     }
+
+    override suspend fun getLastALertID(): Int?{
+        return weatherAlertsDao.getLastAlertID()
+    }
 }

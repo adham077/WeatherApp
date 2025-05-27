@@ -29,4 +29,7 @@ interface WeatherAlertsDao {
 
     @Query("DELETE FROM weather_alerts_table WHERE id = :id")
     suspend fun deleteWeatherById(id: Int): Int
+
+    @Query("SELECT id FROM weather_alerts_table ORDER BY id DESC LIMIT 1")
+    suspend fun getLastAlertID(): Int?
 }

@@ -228,4 +228,8 @@ class WeatherRepository private constructor(private val weatherLocalDataSource: 
     suspend fun deleteAllWeatherAlerts(): Int = withContext(Dispatchers.IO) {
         weatherLocalDataSource.deleteAllWeatherAlerts()
     }
+
+    suspend fun getLastWeatherAlertID(): Int? = withContext(Dispatchers.IO){
+        weatherLocalDataSource.getLastALertID()
+    }
 }

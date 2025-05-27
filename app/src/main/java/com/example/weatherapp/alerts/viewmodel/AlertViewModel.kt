@@ -30,8 +30,12 @@ class AlertViewModel(private val repository: WeatherRepository) : ViewModel() {
     private val _insertedWeatherAlertStatus = MutableLiveData<Boolean>()
     val insertedWeatherAlertStatus: LiveData<Boolean> = _insertedWeatherAlertStatus
 
-    val _weatherTimed  = MutableLiveData<WeatherTimed?>()
+    private val _weatherTimed  = MutableLiveData<WeatherTimed?>()
     val weatherTimed: LiveData<WeatherTimed?> = _weatherTimed
+
+    private val _lastAlertId = MutableLiveData<Int?>()
+    val lastAlertId : LiveData<Int?> = _lastAlertId
+
 
     fun getWeather(lat: Double,long: Double){
         viewModelScope.launch {
@@ -72,6 +76,16 @@ class AlertViewModel(private val repository: WeatherRepository) : ViewModel() {
                     else {
                         _insertedWeatherAlertStatus.postValue(false)
                     }
+                }
+            }
+        }
+    }
+
+    fun getLastWeatherAlertId(){
+        viewModelScope.launch {
+            repository.getLastWeatherAlertID().let {result->
+                withContext(Dispatchers.Main) {
+                    _lastAlertId.postValue(result)
                 }
             }
         }

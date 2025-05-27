@@ -77,7 +77,18 @@ class InitialSetupFragment : Fragment() {
         val editor = sharedPreferences.edit()
 
         if(sharedPreferences.getBoolean("isInitRun", false)){
-            if(sharedPreferences.getBoolean("userPrefGps",false)){
+            if(sharedPreferences.getBoolean("FromAlarm",false)){
+                sharedPreferences.edit().apply{
+                    putBoolean("FromAlarm",false)
+                    apply()
+                }
+                val action = InitialSetupFragmentDirections.actionInitialSetupFragmentToHomeFragment(
+                    senderID =  "ALERTS_RECEIVER",
+                    itemId = sharedPreferences.getInt("ITEM_ID",0)
+                )
+                view.findNavController().navigate(action)
+            }
+            else if(sharedPreferences.getBoolean("userPrefGps",false)){
                 if(checkLocationPermission()){
                     getLocation {success,lat,long->
                         if(success){

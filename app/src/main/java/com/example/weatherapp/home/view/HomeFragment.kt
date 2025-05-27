@@ -115,6 +115,8 @@ class HomeFragment : Fragment() {
             seaLevel = sharedPreferences.getString("elevationUnit", "meters") ?: "meters",
         )
 
+        Log.i("HomeFragment", "SenderID: $senderId")
+
         Log.i("HomeFragment", "onViewCreated: temperatureUnit=${units.temperature}, speedUnit=${units.speed}, pressureUnit=${units.pressure}, visibilityUnit=${units.visibility}, seaLevelUnit=${units.seaLevel}")
 
         Log.i("HomeFragment", "onViewCreated: lat=$lat, long=$long, senderId=$senderId, itemId=$itemId, fromGps=$fromGps")
@@ -176,26 +178,31 @@ class HomeFragment : Fragment() {
                 }
             }
         }
-        else if(senderId == "AlertsReceiver"){
+        else if(senderId == "ALERTS_RECEIVER"){
+            Log.i("HomeFragment", "Alerts: itemId=$itemId, lat=$lat, long=$long")
             viewModel.getWeatherAlertById(itemId)
             viewModel.weatherAlertResult.observe(viewLifecycleOwner) {result->
                 if(result!= null){
                     val lat = result.response.weatherResponse.city.coord.lat
                     val long = result.response.weatherResponse.city.coord.lon
                     viewModel.getCurrentWeather(WeatherRepository.Coordinates(lat,long))
-                    viewModel.currentWeatherResult.observe(viewLifecycleOwner) { result->
-                        if(result!=null){
-                            currentWeather = result.currentWeatherResponse!!
+                    viewModel.currentWeatherResult.observe(viewLifecycleOwner) { currWeather->
+                        currentWeather = currWeather.currentWeatherResponse!!
+                        viewModel.getWeather(
+                            Source.REMOTE,
+                            WeatherRepository.Coordinates(lat, long)
+                        )
+                        viewModel.weatherResult.observe(viewLifecycleOwner) { weatherResult->
+                            weatherTimed = weatherResult.weatherTimed!!
+                            setupViewOnline(
+                                units,
+                                weatherTimed,
+                                currentWeather
+                            )
+                            viewModel.deleteWeatherAlertById(itemId)
                         }
-                    }
 
-                    viewModel.getWeather(Source.REMOTE, WeatherRepository.Coordinates(lat, long))
-                    viewModel.weatherResult.observe(viewLifecycleOwner) { result->
-                        if(result.status == WeatherRepository.Status.SUCCESS){
-                            weatherTimed = result.weatherTimed!!
-                        }
                     }
-                    setupViewOnline(units, weatherTimed, currentWeather)
                 }
             }
         }

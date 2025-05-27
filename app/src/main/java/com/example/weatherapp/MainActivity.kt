@@ -1,11 +1,16 @@
 package com.example.weatherapp
 
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavController
 import androidx.navigation.NavOptions
 import androidx.navigation.findNavController
@@ -86,14 +91,20 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        if(intent!=null){
+        if (intent != null) {
             val senderID = intent.getStringExtra("SENDER_ID")
             val itemId = intent.getIntExtra("ITEM_ID", 0)
-            if (senderID != null && senderID == "AlertsReceiver") {
-                val directions = NavGraphDirections.actionGlobalToHome(itemId = itemId, senderID = senderID)
-                navController.navigate(directions)
+            Log.i("MAIN_Activity","ItemID: ${itemId}")
+            if (senderID != null && senderID == "ALERTS_RECEIVER") {
+                val sharedPreferences = getSharedPreferences("WeatherAppPrefs", Context.MODE_PRIVATE)
+                sharedPreferences.edit().apply{
+                    putBoolean("FromAlarm",true)
+                    putInt("ITEM_ID",itemId)
+                    apply()
+                }
             }
         }
+
 
     }
 

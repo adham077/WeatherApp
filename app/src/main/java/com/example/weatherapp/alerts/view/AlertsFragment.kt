@@ -2,10 +2,16 @@ package com.example.weatherapp.alerts.view
 
 import android.Manifest.permission.ACCESS_COARSE_LOCATION
 import android.Manifest.permission.ACCESS_FINE_LOCATION
+import android.app.AlarmManager
 import android.app.Dialog
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.os.Looper
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -14,6 +20,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresPermission
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
@@ -22,6 +29,7 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.workDataOf
 import com.example.weatherapp.R
+import com.example.weatherapp.alerts.receiver.AlertsReceiver
 import com.example.weatherapp.alerts.viewmodel.AlertViewModel
 import com.example.weatherapp.alerts.viewmodel.AlertViewModelFactory
 import com.example.weatherapp.alerts.worker.AlertsWorker
@@ -64,6 +72,15 @@ class AlertsFragment : Fragment() {
     private var selectedLocation: GeoPoint? = null
     private var selectedTimeMillis: Long = 0
 
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+            // Permission granted
+        } else {
+            // Permission denied
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -87,8 +104,20 @@ class AlertsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.fabAddAlert.setOnClickListener {
-            showMapDial()
+            if(checkNotificationPermissions()){
+                showMapDial()
+            }
+            else{
+                requestNotificationPermission()
+                if(checkNotificationPermissions()){
+                    showMapDial()
+                }
+                else{
+                    Toast.makeText(requireContext(), "Please allow notification permissions to set alerts", Toast.LENGTH_SHORT).show()
+                }
+            }
         }
+
 
     }
 
@@ -129,20 +158,21 @@ class AlertsFragment : Fragment() {
                         viewModel.insertedWeatherAlertStatus.observe(viewLifecycleOwner) {
                             result->
                             if(result){
-                                val myItemId = myWeatherEntity.id
-                                val myNotificationId = myWeatherEntity.id
-                                val workRequest = OneTimeWorkRequestBuilder<AlertsWorker>()
-                                    .setInputData(
-                                        workDataOf(
-                                            "NOTIFICATION_ID" to myNotificationId,
-                                            "ITEM_ID" to myItemId
-                                        )
-                                    )
-                                    .addTag("alert_${myItemId}")
-                                    .setInitialDelay(delayMillis, TimeUnit.MILLISECONDS)
-                                    .build()
+                                val alarmManager = requireContext().getSystemService(Context.ALARM_SERVICE) as android.app.AlarmManager
 
-                                WorkManager.getInstance(requireContext()).enqueue(workRequest)
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                                    if (alarmManager.canScheduleExactAlarms()) {
+                                        viewModel.getLastWeatherAlertId()
+                                        viewModel.lastAlertId.observe(viewLifecycleOwner) {
+                                            scheduleExactAlarm(alarmManager, selectedTimeMillis, it!!)
+                                        }
+                                    } else {
+                                        Toast.makeText(requireContext(), "Please allow exact alarm permission in settings.", Toast.LENGTH_LONG).show()
+                                    }
+                                } else {
+                                    scheduleExactAlarm(alarmManager, selectedTimeMillis, myWeatherEntity.id)
+                                }
+
                                 dialog.dismiss()
                                 Toast.makeText(requireContext(), "Alert saved successfully", Toast.LENGTH_SHORT).show()
                             }
@@ -225,4 +255,44 @@ class AlertsFragment : Fragment() {
         }
         datePicker.show(parentFragmentManager, "DATE_PICKER")
     }
+
+    fun requestNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(
+                    requireContext(), android.Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                requestPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
+    }
+
+    private fun checkNotificationPermissions(): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            ContextCompat.checkSelfPermission(
+                requireContext(),
+                android.Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED
+        } else {
+            true
+        }
+    }
+
+    private fun scheduleExactAlarm(alarmManager: AlarmManager, timeMillis: Long, alarmId: Int) {
+        val alarmIntent = Intent(requireContext(), AlertsReceiver::class.java).apply {
+            putExtra("ITEM_ID", alarmId)
+        }
+
+        Log.i("ALARM_ACTIVITY","ITEM_ID $alarmId")
+
+        val pendingIntent = PendingIntent.getBroadcast(
+            requireContext(),
+            alarmId,
+            alarmIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, timeMillis, pendingIntent)
+    }
+
 }
