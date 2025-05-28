@@ -8,13 +8,15 @@ import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.bumptech.glide.Glide
 import com.example.weatherapp.databinding.ItemHourlyForecastBinding
 import com.example.weatherapp.model.pojo.WeatherList
+import com.example.weatherapp.utils.convertCelsiusToFahrenheit
+import com.example.weatherapp.utils.convertCelsiusToKelvin
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
-class HourlyForecastAdapter(private var hourlyForecastList : List<WeatherList>?,private val zoneId: ZoneId) : RecyclerView.Adapter<HourlyForecastAdapter.HourlyViewHolder>() {
+class HourlyForecastAdapter(private var hourlyForecastList : List<WeatherList>?,private val zoneId: ZoneId,private val units : HomeFragment.Units) : RecyclerView.Adapter<HourlyForecastAdapter.HourlyViewHolder>() {
 
     class HourlyViewHolder(val binding: ItemHourlyForecastBinding) : ViewHolder(binding.root)
 
@@ -35,7 +37,17 @@ class HourlyForecastAdapter(private var hourlyForecastList : List<WeatherList>?,
 
         holder.binding.hourlyTime.text = dateTime.format(DateTimeFormatter.ofPattern("HH:mm"))
 
-        holder.binding.hourlyTemperature.text = hourlyForecastList?.get(position)?.main?.temp?.toInt().toString() + "°C"
+        if(units.temperature == "Celsius") {
+            holder.binding.hourlyTemperature.text = hourlyForecastList?.get(position)?.main?.temp?.toInt().toString() + "°C"
+        }
+        else if(units.temperature == "Fahrenheit"){
+            holder.binding.hourlyTemperature.text = convertCelsiusToFahrenheit(hourlyForecastList?.get(position)?.main?.temp!!).toInt().toString() + "F"
+
+        }
+        else{
+            holder.binding.hourlyTemperature.text = convertCelsiusToKelvin(hourlyForecastList?.get(position)?.main?.temp!!).toInt().toString() + "K"
+        }
+
         val drawableId = hourlyForecastList?.get(position)?.weather?.get(0)?.icon?.let { icon ->
             com.example.weatherapp.utils.weatherIconsMap[icon]
         } ?: 0

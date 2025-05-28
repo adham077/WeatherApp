@@ -12,6 +12,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.weatherapp.R
 import com.example.weatherapp.databinding.FragmentHomeBinding
 import com.example.weatherapp.home.viewmodel.HomeViewModel
 import com.example.weatherapp.home.viewmodel.HomeViewModelFactory
@@ -32,6 +33,8 @@ import com.example.weatherapp.utils.convertKmToMiles
 import com.example.weatherapp.utils.convertMeterToFeet
 import com.example.weatherapp.utils.convertMetertkiloM
 import com.example.weatherapp.utils.covertHpaToMmHg
+import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.navigation.NavigationView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -148,6 +151,10 @@ class HomeFragment : Fragment() {
         }
         else if(senderId == "SavedWeatherFragment"){
             Log.i("HomeFragment", "Favorite: itemId=$itemId, lat=$lat, long=$long")
+
+            activity?.findViewById<MaterialToolbar>(R.id.topAppBar)?.title = "Favorites"
+            activity?.findViewById<NavigationView>(R.id.navigation_view)?.setCheckedItem(R.id.favoriteFragment)
+
             var hasHandledSavedWeather = false
             fetchFromLocal(itemId)
             fetchedFromLocal.observe(viewLifecycleOwner) {
@@ -485,7 +492,7 @@ class HomeFragment : Fragment() {
     }
 
     private fun setup5DayRecycler(weatherMap :Map<String, ForecastItem>){
-        val dailyForecastAdapter = DailyForecastAdapter(weatherMap)
+        val dailyForecastAdapter = DailyForecastAdapter(weatherMap,units)
         val layoutMan = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
         binding.dailyForecastRecycler.apply {
             adapter = dailyForecastAdapter
@@ -495,7 +502,7 @@ class HomeFragment : Fragment() {
     }
 
     private fun setupHourlyRecycler(weatherList: List<WeatherList>,zoneId : ZoneId){
-        val hourlyForecastAdapter = HourlyForecastAdapter(weatherList,zoneId)
+        val hourlyForecastAdapter = HourlyForecastAdapter(weatherList,zoneId,units)
         val layoutMan = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
         binding.hourlyForecastRecycler.apply {
             adapter = hourlyForecastAdapter

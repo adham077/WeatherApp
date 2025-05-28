@@ -3,6 +3,7 @@ package com.example.weatherapp
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -20,6 +21,8 @@ import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.weatherapp.databinding.ActivityMainBinding
+import com.example.weatherapp.utils.languagesMap
+import java.util.Locale
 
 
 class MainActivity : AppCompatActivity() {
@@ -28,6 +31,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var navController: NavController
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        applySavedLocale()
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -110,5 +114,54 @@ class MainActivity : AppCompatActivity() {
 
     override fun onSupportNavigateUp(): Boolean {
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
+    }
+
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(updateContextLocale(newBase))
+    }
+
+    private fun updateContextLocale(context: Context): Context {
+        val prefs = context.getSharedPreferences("WeatherAppPrefs", Context.MODE_PRIVATE)
+        val langName = prefs.getString("language", "English")
+        val langCode = languagesMap[langName] ?: "en"
+        val locale = Locale(langCode)
+        Locale.setDefault(locale)
+
+        val config = Configuration(context.resources.configuration)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            config.setLocale(locale)
+            config.setLayoutDirection(locale)
+            return context.createConfigurationContext(config)
+        } else {
+            config.locale = locale
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                config.setLayoutDirection(locale)
+            }
+            return context
+        }
+    }
+
+    override fun applyOverrideConfiguration(overrideConfiguration: Configuration?) {
+        super.applyOverrideConfiguration(overrideConfiguration)
+        val config = Configuration(resources.configuration)
+        createConfigurationContext(config)
+    }
+
+    private fun applySavedLocale() {
+        val prefs = getSharedPreferences("WeatherAppPrefs", Context.MODE_PRIVATE)
+        val langName = prefs.getString("language", "English")
+        val langCode = languagesMap[langName] ?: "en"
+        val locale = Locale(langCode)
+        Locale.setDefault(locale)
+
+        val resources = resources
+        val config = Configuration(resources.configuration)
+        config.setLocale(locale)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            createConfigurationContext(config)
+        }
+
+        resources.updateConfiguration(config, resources.displayMetrics)
     }
 }

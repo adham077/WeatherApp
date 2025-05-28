@@ -1,5 +1,6 @@
 package com.example.weatherapp.alerts.receiver
 
+import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -28,6 +29,7 @@ class NotificationReceiver : BroadcastReceiver() {
                 }
             }
             "ALARM_ACTION" -> {
+                cancelAlarm(alarmID,context)
                 GlobalScope.launch(Dispatchers.IO) {
                     WeatherRepository.getInstance(
                         WeatherLocalDataSource(context),
@@ -38,5 +40,24 @@ class NotificationReceiver : BroadcastReceiver() {
             else -> {
             }
         }
+    }
+
+    private fun cancelAlarm(alarmID : Int,context: Context){
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as android.app.AlarmManager
+
+        val alarmIntent = Intent(context, NotificationReceiver::class.java).apply {
+            action = "ALARM_ACTION"
+            putExtra("ALARM_ID", alarmID)
+            putExtra("ITEM_ID", alarmID)
+        }
+
+        val pendingIntent = PendingIntent.getBroadcast(
+            context,
+            alarmID,
+            alarmIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        alarmManager.cancel(pendingIntent)
     }
 }

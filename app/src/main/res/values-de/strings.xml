@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hello_blank_fragment">Hallo leeres Fragment</string>
+    <string name="city_name">Stadtname</string>
+    <string name="hourly_forecast">Stündliche Vorhersage</string>
+    <string name="_5_day_forecast">5-Tage-Vorhersage</string>
+    <string name="sea_level">Meeresspiegel</string>
+    <string name="ground_level">Bodenhöhe</string>
+    <string name="humidity">Luftfeuchtigkeit</string>
+    <string name="visibility">Sichtweite</string>
+    <string name="sunrise">Sonnenaufgang</string>
+    <string name="sunset">Sonnenuntergang</string>
+    <string name="wind">Wind</string>
+    <string name="pressure">Luftdruck</string>
+    <string name="use_current_location">Aktuellen Standort verwenden</string>
+    <string name="automatically_detect_your_location_using_gps">Standort automatisch per GPS ermitteln</string>
+    <string name="choose_on_map">Auf Karte auswählen</string>
+    <string name="manually_select_a_location_from_the_map">Manuell einen Ort auf der Karte auswählen</string>
+    <string name="use_gps">GPS verwenden</string>
+    <string name="choose_location">Ort auswählen</string>
+    <string name="home">Start</string>
+    <string name="favorites">Favoriten</string>
+    <string name="alerts">Warnungen</string>
+    <string name="add_favorite">Zu Favoriten hinzufügen</string>
+    <string name="settings">Einstellungen</string>
+    <string name="location_settings">Standorteinstellungen</string>
+    <string name="use_gps_location">GPS-Standort verwenden</string>
+    <string name="choose_from_map">Von Karte auswählen</string>
+    <string name="units">Einheiten</string>
+    <string name="temperature_unit">Temperatureinheit</string>
+    <string name="pressure_unit">Druckeinheit</string>
+    <string name="wind_speed_unit">Windgeschwindigkeitseinheit</string>
+    <string name="elevation_units">Höheneinheiten</string>
+    <string name="visibility_units">Sichtweiteeinheiten</string>
+    <string name="language">Sprache</string>
+    <string name="app_language">App-Sprache</string>
+</resources>

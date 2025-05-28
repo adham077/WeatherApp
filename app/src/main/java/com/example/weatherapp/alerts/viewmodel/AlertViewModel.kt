@@ -36,6 +36,9 @@ class AlertViewModel(private val repository: WeatherRepository) : ViewModel() {
     private val _lastAlertId = MutableLiveData<Int?>()
     val lastAlertId : LiveData<Int?> = _lastAlertId
 
+    private val _allWeatherAlerts = MutableLiveData<List<WeatherAlertEntity>?>()
+    val allWeatherAlerts : LiveData<List<WeatherAlertEntity>?> = _allWeatherAlerts
+
 
     fun getWeather(lat: Double,long: Double){
         viewModelScope.launch {
@@ -88,6 +91,22 @@ class AlertViewModel(private val repository: WeatherRepository) : ViewModel() {
                     _lastAlertId.postValue(result)
                 }
             }
+        }
+    }
+
+    fun getAllAlerts(){
+        viewModelScope.launch {
+            repository.getAllWeatherAlerts().let { result->
+                withContext(Dispatchers.Main) {
+                    _allWeatherAlerts.postValue(result)
+                }
+            }
+        }
+    }
+
+    fun deleteWeatherAlert(id : Int){
+        viewModelScope.launch {
+            repository.deleteWeatherAlertById(id)
         }
     }
 }

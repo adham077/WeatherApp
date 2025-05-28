@@ -1,7 +1,19 @@
 package com.example.weatherapp.utils
 
+import android.content.Context
+import android.content.res.Configuration
+import android.content.res.Resources
+import android.os.Build
+import android.util.LayoutDirection
 import com.example.weatherapp.R
 import com.example.weatherapp.model.pojo.WeatherList
+import java.util.Locale
+
+val languagesMap = mapOf<String, String>(
+    "English" to "en",
+    "Arabic" to "ar",
+    "German" to "de"
+)
 
 val weatherIconsMap = mapOf<String, Int>(
     "01d" to R.drawable.ic_oned,
@@ -80,4 +92,26 @@ fun convertMetertkiloM(meter: Long): Double {
 
 fun convertMeterToFeet(meter: Long): Double {
     return meter * 3.28084
+}
+
+fun updateLocale(languageCode: String, context: Context) {
+    val locale = Locale(languageCode)
+    Locale.setDefault(locale)
+
+    val resources = context.resources
+    val config = Configuration(resources.configuration)
+    config.setLocale(locale)
+
+    if (languageCode == "ar") {
+        //config.layoutDirection = LayoutDirection.RTL
+    }
+
+    context.applicationContext.resources.updateConfiguration(config,
+        context.applicationContext.resources.displayMetrics)
+
+    resources.updateConfiguration(config, resources.displayMetrics)
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+        context.createConfigurationContext(config)
+    }
 }

@@ -3,6 +3,7 @@ package com.example.weatherapp.settings
 import android.Manifest.permission.ACCESS_COARSE_LOCATION
 import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.app.Dialog
+import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -33,6 +34,10 @@ import org.osmdroid.views.MapController
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.Overlay
+import androidx.core.content.edit
+import com.example.weatherapp.MainActivity
+import com.example.weatherapp.utils.languagesMap
+import com.example.weatherapp.utils.updateLocale
 
 private typealias settings_onLocationDenied_t = () -> Unit
 private typealias settings_onLocationGranted_t = () -> Unit
@@ -45,6 +50,8 @@ class SettingsFragment : Fragment() {
     private lateinit var onLocationGranted: settings_onLocationGranted_t
     private lateinit var onLocationDenied: settings_onLocationDenied_t
     private  var selectedLocation : GeoPoint? = null
+    private var initializingLanguageSpinner = true
+
 
 
     private val locationPermissionLauncher = registerForActivityResult(
@@ -250,6 +257,41 @@ class SettingsFragment : Fragment() {
 
             }
         }
+
+        val languages = listOf<String>("English","Arabic","German")
+        val languageAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, languages)
+        languageAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        binding.spinnerLanguage.adapter = languageAdapter
+
+        binding.spinnerLanguage.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                if (initializingLanguageSpinner) {
+                    initializingLanguageSpinner = false
+                    return
+                }
+
+                val selectedLanguage = languages[position]
+                val currentLanguage = sharedPreferences.getString("language", "English")
+
+                if (selectedLanguage != currentLanguage) {
+                    sharedPreferences.edit {
+                        putString("language", selectedLanguage)
+                    }
+                    restartApp()
+                }
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        }
+
+        binding.spinnerLanguage.setSelection(
+            languages.indexOf(sharedPreferences.getString("language", "English"))
+        )
     }
 
     private fun checkLocationPermission() : Boolean{
@@ -374,6 +416,15 @@ class SettingsFragment : Fragment() {
             }
         }
         dialog.show()
+    }
+
+    private fun restartApp() {
+        val intent = Intent(requireContext(), MainActivity::class.java)
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+        startActivity(intent)
+        requireActivity().finishAffinity()
+
+        requireActivity().overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
     }
 
 }

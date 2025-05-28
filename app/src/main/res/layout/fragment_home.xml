@@ -45,7 +45,7 @@
                     android:id="@+id/city_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="City Name"
+                    android:text="@string/city_name"
                     android:textSize="28sp"
                     android:textColor="@color/text_primary"
                     android:textStyle="bold"
@@ -99,7 +99,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Hourly Forecast"
+            android:text="@string/hourly_forecast"
             android:textSize="20sp"
             android:textColor="@color/colorSecondary"
             android:layout_marginTop="16dp"
@@ -117,7 +117,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="5-Day Forecast"
+            android:text="@string/_5_day_forecast"
             android:textSize="20sp"
             android:textColor="@color/colorSecondary"
             android:layout_marginTop="16dp"
@@ -158,7 +158,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Sea Level"
+                        android:text="@string/sea_level"
                         android:textSize="16sp"
                         android:textColor="@color/colorSecondary"
                         android:drawableStart="@drawable/ic_sea_level"
@@ -194,7 +194,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Ground Level"
+                        android:text="@string/ground_level"
                         android:textSize="16sp"
                         android:textColor="@color/colorAccent"
                         android:drawableStart="@drawable/ic_ground_level"
@@ -239,7 +239,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Humidity"
+                        android:text="@string/humidity"
                         android:textSize="16sp"
                         android:textColor="@color/colorAccent"
                         android:drawableStart="@drawable/ic_humidity"
@@ -275,7 +275,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Visibility"
+                        android:text="@string/visibility"
                         android:textSize="16sp"
                         android:textColor="@color/colorSecondary"
                         android:drawableStart="@drawable/ic_visibility"
@@ -320,7 +320,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Sunrise"
+                        android:text="@string/sunrise"
                         android:textSize="16sp"
                         android:textColor="@color/colorSecondary"
                         android:drawableStart="@drawable/ic_sunrise"
@@ -348,7 +348,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Sunset"
+                        android:text="@string/sunset"
                         android:textSize="16sp"
                         android:textColor="@color/colorSecondary"
                         android:drawableStart="@drawable/ic_sunset"
@@ -391,7 +391,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Wind"
+                        android:text="@string/wind"
                         android:textSize="16sp"
                         android:textColor="@color/colorSecondary"
                         android:drawableStart="@drawable/ic_wind"
@@ -434,7 +434,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Pressure"
+                        android:text="@string/pressure"
                         android:textSize="16sp"
                         android:textColor="@color/colorAccent"
                         android:drawableStart="@drawable/ic_pressure"

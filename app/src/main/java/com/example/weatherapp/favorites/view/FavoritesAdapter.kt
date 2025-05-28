@@ -57,13 +57,28 @@ class FavoritesAdapter(
         position: Int
     ) {
 
+        val item = favoritesWeatherList?.get(position)
+        holder.binding.locationName.text = item?.response?.weatherResponse?.city?.name
+
         holder.binding.btnRemove.setOnClickListener {
-            onFavoriteItemDeleteCLicked(favoritesWeatherList!!.get(position).id,position)
+            val currentPosition = holder.adapterPosition
+            if (currentPosition != RecyclerView.NO_POSITION) {
+                val currentItem = favoritesWeatherList?.get(currentPosition)
+                currentItem?.let {
+                    onFavoriteItemDeleteCLicked(it.id, currentPosition)
+                }
+            }
         }
+
         holder.binding.btnSelectDetails.setOnClickListener {
-            onFavoriteItemDetailsCLicked(favoritesWeatherList!!.get(position).id)
+            val currentPosition = holder.adapterPosition
+            if (currentPosition != RecyclerView.NO_POSITION) {
+                val currentItem = favoritesWeatherList?.get(currentPosition)
+                currentItem?.let {
+                    onFavoriteItemDetailsCLicked(it.id)
+                }
+            }
         }
-        holder.binding.locationName.text = favoritesWeatherList?.get(position)?.response?.weatherResponse?.city?.name
     }
 
     override fun getItemCount(): Int {

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hello_blank_fragment">مرحبًا بالشاشة الفارغة</string>
+    <string name="city_name">اسم المدينة</string>
+    <string name="hourly_forecast">تنبؤ بالساعة</string>
+    <string name="_5_day_forecast">تنبؤ لـ 5 أيام</string>
+    <string name="sea_level">مستوى سطح البحر</string>
+    <string name="ground_level">مستوى الأرض</string>
+    <string name="humidity">الرطوبة</string>
+    <string name="visibility">الرؤية</string>
+    <string name="sunrise">الشروق</string>
+    <string name="sunset">الغروب</string>
+    <string name="wind">الرياح</string>
+    <string name="pressure">الضغط</string>
+    <string name="use_current_location">استخدم الموقع الحالي</string>
+    <string name="automatically_detect_your_location_using_gps">اكتشف موقعك تلقائيًا باستخدام GPS</string>
+    <string name="choose_on_map">اختر من الخريطة</string>
+    <string name="manually_select_a_location_from_the_map">اختر موقعًا يدويًا من الخريطة</string>
+    <string name="use_gps">استخدام GPS</string>
+    <string name="choose_location">اختر موقعًا</string>
+    <string name="home">الرئيسية</string>
+    <string name="favorites">المفضلة</string>
+    <string name="alerts">التنبيهات</string>
+    <string name="add_favorite">إضافة إلى المفضلة</string>
+    <string name="settings">الإعدادات</string>
+    <string name="location_settings">إعدادات الموقع</string>
+    <string name="use_gps_location">استخدام موقع GPS</string>
+    <string name="choose_from_map">اختر من الخريطة</string>
+    <string name="units">الوحدات</string>
+    <string name="temperature_unit">وحدة درجة الحرارة</string>
+    <string name="pressure_unit">وحدة الضغط</string>
+    <string name="wind_speed_unit">وحدة سرعة الرياح</string>
+    <string name="elevation_units">وحدات الارتفاع</string>
+    <string name="visibility_units">وحدات الرؤية</string>
+    <string name="language">اللغة</string>
+    <string name="app_language">لغة التطبيق</string>
+</resources>

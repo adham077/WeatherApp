@@ -12,6 +12,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.example.weatherapp.MainActivity
 import com.example.weatherapp.R
+import com.example.weatherapp.model.repository.weather.WeatherRepository
 import kotlinx.coroutines.DelicateCoroutinesApi
 
 class AlertsReceiver : BroadcastReceiver() {
@@ -55,12 +56,12 @@ class AlertsReceiver : BroadcastReceiver() {
         )
 
         val notification = NotificationCompat.Builder(context, "alarm_channel")
-            .setSmallIcon(R.drawable.ic_add)
-            .setContentTitle("Alarm!")
+            .setSmallIcon(R.drawable.ic_alarm)
+            .setContentTitle("Weather Alarm!")
             .setContentText("Your alarm is going off.")
             .setContentIntent(mainPendingIntent)
             .setDeleteIntent(dismissPendingIntent)
-            .addAction(R.drawable.ic_add, "Stop", actionPendingIntent)
+            .addAction(R.drawable.ic_close, "Stop", actionPendingIntent)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)
             .build()

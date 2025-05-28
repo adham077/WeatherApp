@@ -11,10 +11,12 @@ import androidx.recyclerview.widget.RecyclerView.Recycler
 import com.example.weatherapp.databinding.ItemDailyForecastBinding
 import com.example.weatherapp.model.pojo.WeatherList
 import com.example.weatherapp.utils.ForecastItem
+import com.example.weatherapp.utils.convertCelsiusToFahrenheit
+import com.example.weatherapp.utils.convertCelsiusToKelvin
 import com.example.weatherapp.utils.daysList
 import java.time.LocalDateTime
 
-class DailyForecastAdapter(private var dailyForecastList : Map<String, ForecastItem>?) : RecyclerView.Adapter<DailyForecastAdapter.DailyViewHolder>() {
+class DailyForecastAdapter(private var dailyForecastList : Map<String, ForecastItem>?,private val units: HomeFragment.Units) : RecyclerView.Adapter<DailyForecastAdapter.DailyViewHolder>() {
 
     private val orderedKeys: List<String> = dailyForecastList?.keys?.toList() ?: listOf()
 
@@ -39,9 +41,19 @@ class DailyForecastAdapter(private var dailyForecastList : Map<String, ForecastI
         forecastItem = dailyForecastList?.get(day)
 
         holder.binding.dailyDate.text = day
-        holder.binding.dailyLowTemp.text = "L: ${forecastItem?.tempAverages?.min?.toInt()} °C"
-        holder.binding.dailyHighTemp.text = "H: ${forecastItem?.tempAverages?.max?.toInt()} °C"
 
+        if(units.temperature == "Celsius") {
+            holder.binding.dailyLowTemp.text = "L: ${forecastItem?.tempAverages?.min?.toInt()} °C"
+            holder.binding.dailyHighTemp.text = "H: ${forecastItem?.tempAverages?.max?.toInt()} °C"
+        }
+        else if(units.temperature == "Fahrenheit"){
+            holder.binding.dailyLowTemp.text = "L: ${convertCelsiusToFahrenheit(forecastItem?.tempAverages?.min!!).toInt()} °F"
+            holder.binding.dailyHighTemp.text = "H: ${convertCelsiusToFahrenheit(forecastItem?.tempAverages?.max!!).toInt()} °F"
+        }
+        else{
+            holder.binding.dailyLowTemp.text = "L: ${convertCelsiusToKelvin(forecastItem?.tempAverages?.min!!).toInt()} °K"
+            holder.binding.dailyHighTemp.text = "H: ${convertCelsiusToKelvin(forecastItem?.tempAverages?.max!!).toInt()} °K"
+        }
         val tempAverages = forecastItem?.tempAverages
 
         if(tempAverages!=null){
@@ -54,6 +66,16 @@ class DailyForecastAdapter(private var dailyForecastList : Map<String, ForecastI
             } else {
                 0.0
             }
+
+            val avgToMaxPercent = if(range != 0.0){
+                ((max - avg)/range) * 100
+            }
+            else{
+                0.0
+            }
+
+            holder.binding.temperatureRangeBar.progress = avgToMaxPercent.toInt()
+
             holder.binding.root.post {
                 val barWidth = holder.binding.temperatureRangeBar.width
                 if (barWidth > 0) {

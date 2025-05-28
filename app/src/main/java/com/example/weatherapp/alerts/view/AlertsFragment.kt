@@ -1,7 +1,6 @@
 package com.example.weatherapp.alerts.view
 
-import android.Manifest.permission.ACCESS_COARSE_LOCATION
-import android.Manifest.permission.ACCESS_FINE_LOCATION
+
 import android.app.AlarmManager
 import android.app.Dialog
 import android.app.PendingIntent
@@ -10,45 +9,28 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.os.Looper
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.RequiresPermission
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.findNavController
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.WorkManager
-import androidx.work.workDataOf
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.weatherapp.R
 import com.example.weatherapp.alerts.receiver.AlertsReceiver
+import com.example.weatherapp.alerts.receiver.NotificationReceiver
 import com.example.weatherapp.alerts.viewmodel.AlertViewModel
 import com.example.weatherapp.alerts.viewmodel.AlertViewModelFactory
-import com.example.weatherapp.alerts.worker.AlertsWorker
 import com.example.weatherapp.databinding.DialogAddAlertBinding
-import com.example.weatherapp.databinding.DialogMapSelectorBinding
 import com.example.weatherapp.databinding.FragmentAlertsBinding
-import com.example.weatherapp.home.view.InitialSetupFragmentDirections
-import com.example.weatherapp.home.view._locationRes_t
-import com.example.weatherapp.home.view._onLocationDenied_t
-import com.example.weatherapp.home.view._onLocationGranted_t
-import com.example.weatherapp.home.viewmodel.HomeViewModel
-import com.example.weatherapp.home.viewmodel.HomeViewModelFactory
 import com.example.weatherapp.model.data.source.local.weather.WeatherLocalDataSource
 import com.example.weatherapp.model.data.source.remote.weather.WeatherRemoteDataSource
 import com.example.weatherapp.model.pojo.WeatherAlertEntity
 import com.example.weatherapp.model.repository.weather.WeatherRepository
-import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationServices
-import com.google.android.gms.location.Priority
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.timepicker.MaterialTimePicker
@@ -62,7 +44,6 @@ import org.osmdroid.views.overlay.Overlay
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
-import java.util.concurrent.TimeUnit
 
 
 class AlertsFragment : Fragment() {
@@ -71,14 +52,14 @@ class AlertsFragment : Fragment() {
     lateinit var viewModel: AlertViewModel
     private var selectedLocation: GeoPoint? = null
     private var selectedTimeMillis: Long = 0
+    private lateinit var alertsAdapter: AlertsAdapter
 
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
         if (isGranted) {
-            // Permission granted
-        } else {
-            // Permission denied
+        }
+        else {
         }
     }
 
@@ -103,6 +84,26 @@ class AlertsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        val onDeletePressed : (Int) -> Unit = {result->
+            viewModel.deleteWeatherAlert(result)
+            cancelAlarm(result)
+        }
+
+
+
+        viewModel.getAllAlerts()
+        viewModel.allWeatherAlerts.observe(viewLifecycleOwner) {result->
+            alertsAdapter = AlertsAdapter(
+                items = result,
+                onItemDeleted = onDeletePressed
+            )
+            binding.alertsRecycler.apply {
+                layoutManager = LinearLayoutManager(requireContext())
+                adapter = alertsAdapter
+            }
+        }
+
         binding.fabAddAlert.setOnClickListener {
             if(checkNotificationPermissions()){
                 showMapDial()
@@ -165,6 +166,7 @@ class AlertsFragment : Fragment() {
                                         viewModel.getLastWeatherAlertId()
                                         viewModel.lastAlertId.observe(viewLifecycleOwner) {
                                             scheduleExactAlarm(alarmManager, selectedTimeMillis, it!!)
+                                            alertsAdapter.addItem(myWeatherEntity)
                                         }
                                     } else {
                                         Toast.makeText(requireContext(), "Please allow exact alarm permission in settings.", Toast.LENGTH_LONG).show()
@@ -293,6 +295,16 @@ class AlertsFragment : Fragment() {
         )
 
         alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, timeMillis, pendingIntent)
+    }
+
+    private fun cancelAlarm(id : Int){
+        val intent = Intent(requireContext(), NotificationReceiver::class.java).apply {
+            action = "ALARM_ACTION"
+            putExtra("ITEM_ID", id)
+            putExtra("ALARM_ID", id)
+        }
+
+        requireContext().sendBroadcast(intent)
     }
 
 }

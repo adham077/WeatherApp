@@ -31,7 +31,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Location Settings"
+                    android:text="@string/location_settings"
                     android:textSize="18sp"
                     android:textColor="@color/colorSecondary"
                     android:textStyle="bold"
@@ -50,7 +50,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Use GPS Location"
+                        android:text="@string/use_gps_location"
                         android:textSize="16sp"
                         android:textColor="@color/text_primary"/>
 
@@ -67,7 +67,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="48dp"
                     android:layout_marginTop="16dp"
-                    android:text="Choose from Map"
+                    android:text="@string/choose_from_map"
                     android:textColor="@color/colorAccent"
                     android:backgroundTint="#331A237E"
                     style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
@@ -92,7 +92,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Units"
+                    android:text="@string/units"
                     android:textSize="18sp"
                     android:textColor="@color/colorSecondary"
                     android:textStyle="bold"
@@ -112,7 +112,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Temperature Unit"
+                        android:text="@string/temperature_unit"
                         android:textSize="16sp"
                         android:textColor="@color/text_primary"/>
 
@@ -134,7 +134,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Pressure Unit"
+                        android:text="@string/pressure_unit"
                         android:textSize="16sp"
                         android:textColor="@color/text_primary"/>
 
@@ -157,7 +157,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Wind Speed Unit"
+                        android:text="@string/wind_speed_unit"
                         android:textSize="16sp"
                         android:textColor="@color/text_primary"/>
 
@@ -179,7 +179,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Elevation Units"
+                        android:text="@string/elevation_units"
                         android:textSize="16sp"
                         android:textColor="@color/text_primary"/>
 
@@ -201,7 +201,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Visibility Units"
+                        android:text="@string/visibility_units"
                         android:textSize="16sp"
                         android:textColor="@color/text_primary"/>
 
@@ -232,7 +232,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Language"
+                    android:text="@string/language"
                     android:textSize="18sp"
                     android:textColor="@color/colorSecondary"
                     android:textStyle="bold"
@@ -251,7 +251,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="App Language"
+                        android:text="@string/app_language"
                         android:textSize="16sp"
                         android:textColor="@color/text_primary"/>
 
