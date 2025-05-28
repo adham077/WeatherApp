@@ -10,7 +10,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Weather App"
+        android:text="WeatherVibes"
         android:textColor="@color/text_primary"
         android:textSize="20sp"
         android:fontFamily="@font/montserrat_bold"/>

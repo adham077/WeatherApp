@@ -20,7 +20,7 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="@drawable/gradient_background"
-            app:title="Weather App"
+            app:title="WeatherVibes"
             app:titleTextColor="@color/text_primary"
             app:navigationIcon="@drawable/ic_launcher_foreground"
             app:menu="@menu/main_menu"/>
