@@ -34,4 +34,6 @@
     <string name="visibility_units">Sichtweiteeinheiten</string>
     <string name="language">Sprache</string>
     <string name="app_language">App-Sprache</string>
+    <string name="feels_like">Gefühlt:</string>
+
 </resources>

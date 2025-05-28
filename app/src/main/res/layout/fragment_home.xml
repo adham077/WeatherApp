@@ -79,13 +79,13 @@
                         android:id="@+id/high_temp"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="H: 28°C"
+                        android:text="@string/feels_like"
                         android:textSize="16sp"
                         android:textColor="@color/text_primary"
                         android:layout_marginEnd="16dp"/>
 
                     <TextView
-                        android:id="@+id/low_temp"
+                        android:id="@+id/feels_like_temp"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="L: 20°C"

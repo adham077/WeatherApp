@@ -34,4 +34,6 @@
     <string name="visibility_units">وحدات الرؤية</string>
     <string name="language">اللغة</string>
     <string name="app_language">لغة التطبيق</string>
+    <string name="feels_like">يشعر كأنه:</string>
+
 </resources>

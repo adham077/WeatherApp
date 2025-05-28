@@ -3,6 +3,7 @@ package com.example.weatherapp.model.repository.weather
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.annotation.VisibleForTesting
 import com.example.weatherapp.key.apiKey
 import com.example.weatherapp.model.data.source.local.weather.I_WeatherLocalDataSource
 import com.example.weatherapp.model.data.source.remote.weather.I_WeatherRemoteDataSource
@@ -26,6 +27,11 @@ class WeatherRepository private constructor(private val weatherLocalDataSource: 
                 instance = newInstance
                 newInstance
             }
+        }
+
+        @VisibleForTesting
+        fun resetInstance() {
+            instance = null
         }
     }
 
@@ -89,25 +95,17 @@ class WeatherRepository private constructor(private val weatherLocalDataSource: 
                     if(_weatherResponse.weatherResponse == null){
                         status = Status.ERROR_REMOTE_FETCH
                         weatherResult = WeatherResult(weatherTimed,status)
-                        Log.i("WeatherRepository", "getWeatherData: Remote fetch error: ${_weatherResponse.status}")
 
                     }
                     else if(_weatherResponse.weatherResponse!!.cod != "200"){
                         status = Status.ERROR_INVALID_RESPONSE
                         weatherResult = WeatherResult(weatherTimed,status)
-                        Log.i("WeatherRepository", "getWeatherData: No data found for the given coordinates")
 
                     }
                     else if(_weatherResponse.status != WeatherRemoteDataSource.ResponseStatus.SUCCESS){
                         status = Status.ERROR_REMOTE_FETCH
                         weatherResult = WeatherResult(weatherTimed,status)
-                        Log.i("WeatherRepository", "getWeatherData: Remote fetch error: ${_weatherResponse.status}")
 
-                    }
-                    else if(_weatherResponse.weatherResponse!!.list.isEmpty()){
-                        status = Status.ERROR_INVALID_RESPONSE
-                        weatherResult = WeatherResult(weatherTimed,status)
-                        Log.i("WeatherRepository", "getWeatherData: No data found for the given coordinates")
                     }
                     else{
                         weatherTimed = WeatherTimed(
@@ -125,7 +123,8 @@ class WeatherRepository private constructor(private val weatherLocalDataSource: 
     }
 
     suspend fun getCurrentWeatherData(
-        coorindates: Coordinates
+        coorindates: Coordinates,
+        lang : String = "en"
     ) : CurrentWeatherResult = withContext(Dispatchers.IO) {
         val status : Status
         var currentWeatherResponse : CurrentWeatherResponse? = null
@@ -134,6 +133,7 @@ class WeatherRepository private constructor(private val weatherLocalDataSource: 
         val weatherResponse = weatherRemoteDataSource.getCurrentWeather(
             coorindates.lat,
             coorindates.lon,
+            lang = lang,
             appId = apiKey
         )
 

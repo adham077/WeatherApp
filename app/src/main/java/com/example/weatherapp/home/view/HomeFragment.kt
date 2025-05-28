@@ -69,6 +69,7 @@ class HomeFragment : Fragment() {
         val pressure: String = "hPa",
         val visibility: String = "km",
         val seaLevel : String = "m",
+        val language : String = "English"
     )
 
     private lateinit var units : Units
@@ -116,6 +117,7 @@ class HomeFragment : Fragment() {
             pressure = sharedPreferences.getString("pressureUnit", "hPa") ?: "hPa",
             visibility = sharedPreferences.getString("visibilityUnit", "km") ?: "km",
             seaLevel = sharedPreferences.getString("elevationUnit", "meters") ?: "meters",
+            language = sharedPreferences.getString("language","English") ?: "English"
         )
 
         Log.i("HomeFragment", "SenderID: $senderId")
@@ -254,10 +256,19 @@ class HomeFragment : Fragment() {
 
     private fun fetchFromRemote(coordinates: Pair<Float, Float>) {
         Log.i("HomeFragment", "Fetching weather data from remote")
-        viewModel.getCurrentWeather(WeatherRepository.Coordinates(
-            coordinates.first.toDouble(),
-            coordinates.second.toDouble())
-        )
+        if(units.language == "Arabic"){
+            viewModel.getCurrentWeather(WeatherRepository.Coordinates(
+                coordinates.first.toDouble(),
+                coordinates.second.toDouble()),
+                lang = "ar"
+            )
+        }
+        else{
+            viewModel.getCurrentWeather(WeatherRepository.Coordinates(
+                coordinates.first.toDouble(),
+                coordinates.second.toDouble())
+            )
+        }
         viewModel.currentWeatherResult.observe(viewLifecycleOwner) { result ->
             if(result.status != WeatherRepository.Status.SUCCESS){
                 updatedFromRemote.postValue(false)
@@ -327,14 +338,14 @@ class HomeFragment : Fragment() {
             val lists = setupLists(weatherTimed)
             val hourlyForecastList = lists.first
             val fiveDayForecastMap = lists.second
-            val maxTemp = hourlyForecastList.maxOf { it.main.tempMax }
-            val minTemp = hourlyForecastList.minOf { it.main.tempMin }
+            val feelsLikeTemp_ = hourlyForecastList.get(0).main.feelsLike
             val currentTemp = hourlyForecastList.get(0).main.temp
             val currentPressure = hourlyForecastList.get(0).main.pressure
             val currentVisibility = hourlyForecastList.get(0).visibility
             val currentSeaLevel = hourlyForecastList.get(0).main.seaLevel
             val currentGroundLevel = hourlyForecastList.get(0).main.grndLevel
             val zoneId = getZoneId(weatherTimed.weatherResponse.city.timezone)
+            val weatherDescription = hourlyForecastList[0].weather[0].description
             val sunsetTime_ = Instant.ofEpochSecond(weatherTimed.weatherResponse.city.sunset)
                 .atZone(ZoneId.of("UTC"))
                 .withZoneSameInstant(zoneId)
@@ -346,24 +357,23 @@ class HomeFragment : Fragment() {
                 .toLocalDateTime()
             withContext(Dispatchers.Main) {
                 binding.apply {
+                    binding.weatherDescription.text = weatherDescription
                     sunsetTime.text = sunsetTime_.format(DateTimeFormatter.ofPattern("HH:mm"))
                     sunriseTime.text = sunriseTime_.format(DateTimeFormatter.ofPattern("HH:mm"))
                     lastUpdate.text = "Last Update: ${weatherTimed.localDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))}"
                     cityName.text = "${weatherTimed.weatherResponse.city.name}, ${weatherTimed.weatherResponse.city.country}"
                     if(units.temperature == "Celsius") {
                         currentTemperature.text = "${currentTemp.toInt()}°C"
-                        lowTemp.text = "Low: ${minTemp.toInt()}°C"
-                        highTemp.text = "High: ${maxTemp.toInt()}°C"
+                        feelsLikeTemp.text = "${feelsLikeTemp_.toInt()}°C"
                     }
                     else if(units.temperature == "Fahrenheit") {
                         currentTemperature.text = "${convertCelsiusToFahrenheit(currentTemp).toInt()}°F"
-                        lowTemp.text = "Low: ${convertCelsiusToFahrenheit(minTemp).toInt()}°F"
-                        highTemp.text = "High: ${convertCelsiusToFahrenheit(maxTemp).toInt()}°F"
+                        feelsLikeTemp.text = "${convertCelsiusToFahrenheit(feelsLikeTemp_).toInt()}°C"
+
                     }
                     else{
                         currentTemperature.text = "${convertCelsiusToKelvin(currentTemp).toInt()} K"
-                        lowTemp.text = "Low: ${convertCelsiusToKelvin(minTemp).toInt()} K"
-                        highTemp.text = "High: ${convertCelsiusToKelvin(maxTemp).toInt()} K"
+                        feelsLikeTemp.text = "${convertCelsiusToKelvin(feelsLikeTemp_).toInt()}°C"
                     }
 
                     if(units.pressure == "hPa") {
@@ -429,24 +439,22 @@ class HomeFragment : Fragment() {
 
             withContext(Dispatchers.Main) {
                 binding.apply {
+                    weatherDescription.text = "${currentWeather.weather.get(0).description}"
                     lastUpdate.text = "Last Update: ${LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))}"
                     cityName.text = "${currentWeather.name}, ${currentWeather.sys.country}"
                     sunsetTime.text = sunsetTime_.format(DateTimeFormatter.ofPattern("HH:mm"))
                     sunriseTime.text = sunriseTime_.format(DateTimeFormatter.ofPattern("HH:mm"))
                     if(units.temperature == "Celsius") {
                         currentTemperature.text = "${currentWeather.main.temp.toInt()}°C"
-                        lowTemp.text = "Low: ${currentWeather.main.tempMin.toInt()}°C"
-                        highTemp.text = "High: ${currentWeather.main.tempMax.toInt()}°C"
+                        feelsLikeTemp.text = "${currentWeather.main.feelsLike.toInt()}°C"
                     }
                     else if(units.temperature == "Fahrenheit") {
                         currentTemperature.text = "${convertCelsiusToFahrenheit(currentWeather.main.temp).toInt()}°F"
-                        lowTemp.text = "Low: ${convertCelsiusToFahrenheit(currentWeather.main.tempMin).toInt()}°F"
-                        highTemp.text = "High: ${convertCelsiusToFahrenheit(currentWeather.main.tempMax).toInt()}°F"
+                        feelsLikeTemp.text = "${convertCelsiusToFahrenheit(currentWeather.main.feelsLike).toInt()}°C"
                     }
                     else{
                         currentTemperature.text = "${convertCelsiusToKelvin(currentWeather.main.temp).toInt()} K"
-                        lowTemp.text = "Low: ${convertCelsiusToKelvin(currentWeather.main.tempMin).toInt()} K"
-                        highTemp.text = "High: ${convertCelsiusToKelvin(currentWeather.main.tempMax).toInt()} K"
+                        feelsLikeTemp.text = "${convertCelsiusToKelvin(currentWeather.main.feelsLike).toInt()}°C"
                     }
 
                     if(units.pressure == "hPa") {

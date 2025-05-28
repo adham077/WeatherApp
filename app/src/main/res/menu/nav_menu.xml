@@ -17,11 +17,6 @@
             android:title="@string/alerts"/>
 
         <item
-            android:id="@+id/addFavoriteFragment"
-            android:icon="@drawable/ic_add"
-            android:title="@string/add_favorite"/>
-
-        <item
             android:id="@+id/settingsFragment"
             android:icon="@drawable/ic_settings"
             android:title="@string/settings"/>

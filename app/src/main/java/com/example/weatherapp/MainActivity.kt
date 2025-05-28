@@ -48,8 +48,7 @@ class MainActivity : AppCompatActivity() {
                 R.id.homeFragment,
                 R.id.favoriteFragment,
                 R.id.settingsFragment,
-                R.id.alertsFragment,
-                R.id.addFavoriteFragment
+                R.id.alertsFragment
             ),
             drawerLayout
         )
@@ -73,12 +72,6 @@ class MainActivity : AppCompatActivity() {
                 }
                 R.id.settingsFragment -> {
                     navController.navigate(R.id.settingsFragment, null, NavOptions.Builder()
-                        .setPopUpTo(R.id.nav_graph, false)
-                        .build())
-                    true
-                }
-                R.id.addFavoriteFragment -> {
-                    navController.navigate(R.id.addFavoriteFragment, null, NavOptions.Builder()
                         .setPopUpTo(R.id.nav_graph, false)
                         .build())
                     true

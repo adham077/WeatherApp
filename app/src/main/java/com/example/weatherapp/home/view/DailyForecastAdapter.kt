@@ -8,12 +8,14 @@ import android.view.ViewGroup
 import android.widget.ProgressBar
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.Recycler
+import com.bumptech.glide.Glide
 import com.example.weatherapp.databinding.ItemDailyForecastBinding
 import com.example.weatherapp.model.pojo.WeatherList
 import com.example.weatherapp.utils.ForecastItem
 import com.example.weatherapp.utils.convertCelsiusToFahrenheit
 import com.example.weatherapp.utils.convertCelsiusToKelvin
 import com.example.weatherapp.utils.daysList
+import com.example.weatherapp.utils.weatherIconsMap
 import java.time.LocalDateTime
 
 class DailyForecastAdapter(private var dailyForecastList : Map<String, ForecastItem>?,private val units: HomeFragment.Units) : RecyclerView.Adapter<DailyForecastAdapter.DailyViewHolder>() {
@@ -41,6 +43,9 @@ class DailyForecastAdapter(private var dailyForecastList : Map<String, ForecastI
         forecastItem = dailyForecastList?.get(day)
 
         holder.binding.dailyDate.text = day
+
+        val imageID = weatherIconsMap[forecastItem?.weatherList?.get(0)?.weather[0]?.icon]
+        Glide.with(holder.itemView.context).load(imageID).into(holder.binding.dailyWeatherIcon)
 
         if(units.temperature == "Celsius") {
             holder.binding.dailyLowTemp.text = "L: ${forecastItem?.tempAverages?.min?.toInt()} °C"

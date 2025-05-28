@@ -117,5 +117,23 @@ dependencies {
         }
     }
 
+
+    /*Unit testing*/
+    testImplementation ("androidx.test.ext:junit:1.1.3")
+    testImplementation ("androidx.test.espresso:espresso-core:3.4.0")
+    testImplementation ("org.hamcrest:hamcrest-library:2.2")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.8.2")
+    implementation("org.jetbrains.kotlin:kotlin-reflect:2.0.21")
+    testImplementation("androidx.test:runner:1.6.2")
+    testImplementation("androidx.test:core:1.6.1")
+    testImplementation("androidx.test.ext:junit:1.2.1")
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("io.mockk:mockk:1.13.10")
+    testImplementation("io.mockk:mockk-agent-jvm:1.13.10")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
+    testImplementation("androidx.arch.core:core-testing:2.2.0")
+    testImplementation("org.hamcrest:hamcrest:2.2")
+
 }
+
 

@@ -52,10 +52,11 @@ class HomeViewModel(private val repository: WeatherRepository) : ViewModel() {
     private val _deletedWeatherAlertStatus = MutableLiveData<Boolean>()
     val deletedWeatherAlertStatus: LiveData<Boolean> = _deletedWeatherAlertStatus
 
-    fun getCurrentWeather(coordinates: WeatherRepository.Coordinates) {
+    fun getCurrentWeather(coordinates: WeatherRepository.Coordinates,lang: String = "en") {
         viewModelScope.launch {
             repository.getCurrentWeatherData(
-                coordinates
+                coordinates,
+                lang = lang
             ).let { result->
                 withContext(Dispatchers.Main) {
                     _currentWeatherResult.postValue(result)

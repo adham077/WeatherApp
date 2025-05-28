@@ -14,6 +14,8 @@ import androidx.annotation.RequiresPermission
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import com.example.weatherapp.databinding.FragmentAddFavoriteBinding
 import com.example.weatherapp.favorites.viewmodel.FavoriteViewModel
 import com.example.weatherapp.favorites.viewmodel.FavoriteViewModelFactory
@@ -97,6 +99,17 @@ class AddFavorite : Fragment() {
                     lat,
                     long
                 )
+
+                viewModel.saveLocationLiveData.observe(viewLifecycleOwner) {result->
+                    if(result){
+                        val action = AddFavoriteDirections.actionAddFavoriteFragmentToFavoriteFragment(senderID = "AddFavorite")
+                        findNavController().navigate(action)
+                        Toast.makeText(requireContext(), "Added to favorites successfully.", Toast.LENGTH_SHORT).show()
+                    }
+                    else{
+                        Toast.makeText(requireContext(), "Failed to add to Favorites.", Toast.LENGTH_SHORT).show()
+                    }
+                }
             }
 
         }
